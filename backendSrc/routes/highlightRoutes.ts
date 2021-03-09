@@ -1,10 +1,11 @@
 import express from 'express';
 import Highlight from '../models/highlight';
+import HighlightCreate from '../models/highlightCreate';
 
 export const highlightRouter = express.Router();
 
 highlightRouter.post("/highlight", async (request, response) => {
-    await new Highlight(request.body)
+    await new HighlightCreate(request.body)
         .save()
         .then((highlight) => {
             response.sendStatus(201);
@@ -47,7 +48,7 @@ highlightRouter.put("/highlight/:_id", async (request, response) => {
         });
 });
 
-highlightRouter.delete("/highlight/:_id", async (request, response) => {
+highlightRouter.delete("/highlight/delete/:_id", async (request, response) => {
     await Highlight.findByIdAndRemove(request.params._id)
         .then((res) => {
             response.sendStatus(200);

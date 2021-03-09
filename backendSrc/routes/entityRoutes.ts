@@ -1,10 +1,11 @@
 import express from 'express';
 import Entity from '../models/entity';
+import EntityCreate from '../models/entityCreate';
 
 export const entityRouter = express.Router();
 
 entityRouter.post("/entity", async (request, response) => {
-    await new Entity(request.body)
+    await new EntityCreate(request.body)
         .save()
         .then((entity) => {
             response.sendStatus(201);
@@ -47,7 +48,7 @@ entityRouter.put("/entity/:_id", async (request, response) => {
         });
 });
 
-entityRouter.delete("/entity/:_id", async (request, response) => {
+entityRouter.delete("/entity/delete/:_id", async (request, response) => {
     await Entity.findByIdAndRemove(request.params._id)
         .then((res) => {
             response.sendStatus(200);

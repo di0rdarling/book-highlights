@@ -1,16 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { HighlightSchema, Highlight } from './highlight';
 import { Flag } from './enums/flag';
-import { EntityCreate } from './entityCreate';
 
-export interface Entity extends Document, EntityCreate {
-    _id: string,
+
+export interface EntityCreate extends Document {
+    highlights: Highlight[],
+    description: string,
+    flag: Flag,
+    note: string
 }
 
-const EntitySchema: Schema = new Schema({
-    _id: {
-        type: String,
-    },
+const EntityCreateSchema: Schema = new Schema({
     highlights: {
         type: [HighlightSchema],
         required: true,
@@ -30,4 +30,4 @@ const EntitySchema: Schema = new Schema({
     }
 });
 
-export default mongoose.model<Entity>('Entity', EntitySchema)
+export default mongoose.model<EntityCreate>('Entity', EntityCreateSchema)

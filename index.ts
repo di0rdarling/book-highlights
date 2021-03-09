@@ -1,10 +1,13 @@
 import express from 'express';
-import { config } from './backendSrc/config/config'
 import cors from 'cors'
-import * as BodyParser from 'body-parser';
+import BodyParser from 'body-parser';
 import mongoose from 'mongoose';
+import { config } from './backendSrc/config/config'
 import { entityRouter } from './backendSrc/routes/entityRoutes';
 import { highlightRouter } from './backendSrc/routes/highlightRoutes';
+
+import swaggerUi from 'swagger-ui-express';
+import * as swaggerDocument from './swagger.json';
 
 export let app = express();
 app.use(express.json());
@@ -16,6 +19,7 @@ mongoose.connect(config.mongoAtlasConnectionString, { useNewUrlParser: true, use
 
 app.use(entityRouter);
 app.use(highlightRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((request, result) => {
     result.status(400).send({ url: request.originalUrl + " not found" });

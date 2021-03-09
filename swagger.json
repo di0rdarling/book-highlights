@@ -1,0 +1,363 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "BrainSpace API",
+        "description": "BrainSpace API",
+        "license": {
+            "name": "",
+            "url": ""
+        }
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "tags": [
+        {
+            "name": "Entities",
+            "description": "API for Entities in the system"
+        },
+        {
+            "name": "Highlights",
+            "description": "API for Highlights in the system"
+        }
+    ],
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/entity": {
+            "post": {
+                "description": "Creates a new entity",
+                "tags": [
+                    "Entities"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Entity object that needs to be added to the store",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/EntityCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {}
+                }
+            }
+        },
+        "/entities": {
+            "get": {
+                "description": "Gets all entities",
+                "tags": [
+                    "Entities"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of entities",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Entity"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/entity/:_id": {
+            "get": {
+                "description": "Gets the entity object with the given id",
+                "tags": [
+                    "Entities"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An entity object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/Entity"
+                        }
+                    }
+                }
+            }
+        },
+        "/entity/:_id": {
+            "put": {
+                "description": "Edits the entity object with the given id",
+                "tags": [
+                    "Entities"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Entity object that needs to be edited.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Entity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An entity object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/Entity"
+                        }
+                    }
+                }
+            }
+        },
+        "/entity/delete/:_id": {
+            "delete": {
+                "description": "Deletes the entity object with the given id",
+                "tags": [
+                    "Entities"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entity successfully deleted."
+                    }
+                }
+            }
+        },
+        "/highlight": {
+            "post": {
+                "description": "Creates a new highlight object",
+                "tags": [
+                    "Highlights"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Highlight object that needs to be added to the store",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/HighlightCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {}
+                }
+            }
+        },
+        "/highlights": {
+            "get": {
+                "description": "Gets all highlights",
+                "tags": [
+                    "Highlights"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of highlights",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Highlight"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/highlight/:_id": {
+            "get": {
+                "description": "Gets the highlight object with the given id",
+                "tags": [
+                    "Highlights"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A highlight object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/Highlight"
+                        }
+                    }
+                }
+            }
+        },
+        "/highlight/:_id": {
+            "put": {
+                "description": "Edits the highlight object with the given id",
+                "tags": [
+                    "Highlights"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Highlight object that needs to be edited.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Highlight"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A highlight object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/Highlight"
+                        }
+                    }
+                }
+            }
+        },
+        "/highlight/delete/:_id": {
+            "delete": {
+                "description": "Deletes the highlight object with the given id",
+                "tags": [
+                    "Highlights"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Highlight successfully deleted."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "EntityCreate": {
+            "type": "object",
+            "required": [
+                "highlights"
+            ],
+            "properties": {
+                "highlights": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Highlight"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "flag": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                }
+            }
+        },
+        "Entity": {
+            "type": "object",
+            "required": [
+                "highlights"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "highlights": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Highlight"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "flag": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                }
+            }
+        },
+        "HighlightCreate": {
+            "type": "object",
+            "required": [
+                "text"
+            ],
+            "properties": {
+                "bookTitle": {
+                    "type": "string"
+                },
+                "bookId": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "highlightedDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "Highlight": {
+            "type": "object",
+            "required": [
+                "text"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "bookTitle": {
+                    "type": "string"
+                },
+                "bookId": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "highlightedDate": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

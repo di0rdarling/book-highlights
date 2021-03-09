@@ -1,14 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { HighlightCreate } from './highlightCreate';
 
-export interface Highlight extends Document, HighlightCreate {
-    _id: string,
+export interface HighlightCreate extends Document {
+    bookTitle: string,
+    bookId?: string,
+    text: string,
+    note?: string,
+    highlightedDate: string,
 }
 
-export const HighlightSchema: Schema = new Schema({
-    _id: {
-        type: String
-    },
+export const HighlightCreateSchema: Schema = new Schema({
     bookTitle: {
         type: String,
     },
@@ -30,4 +30,4 @@ export const HighlightSchema: Schema = new Schema({
     }
 });
 
-export default mongoose.model<Highlight>('Highlight', HighlightSchema)
+export default mongoose.model<HighlightCreate>('Highlight', HighlightCreateSchema)
