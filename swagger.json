@@ -264,11 +264,11 @@
         "EntityCreate": {
             "type": "object",
             "required": [
-                "highlights"
+                "highlight"
             ],
             "properties": {
-                "highlights": {
-                    "type": "array",
+                "highlight": {
+                    "type": "object",
                     "items": {
                         "$ref": "#/definitions/Highlight"
                     }
@@ -280,21 +280,24 @@
                     "type": "string"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Note"
+                    }
                 }
             }
         },
         "Entity": {
             "type": "object",
             "required": [
-                "highlights"
+                "highlight"
             ],
             "properties": {
                 "_id": {
                     "type": "string"
                 },
-                "highlights": {
-                    "type": "array",
+                "highlight": {
+                    "type": "object",
                     "items": {
                         "$ref": "#/definitions/Highlight"
                     }
@@ -306,7 +309,10 @@
                     "type": "string"
                 },
                 "note": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Note"
+                    }
                 }
             }
         },
@@ -330,6 +336,12 @@
                 },
                 "highlightedDate": {
                     "type": "string"
+                },
+                "viewed": {
+                    "type": "boolean"
+                },
+                "favourited": {
+                    "type": "boolean"
                 }
             }
         },
@@ -355,6 +367,35 @@
                     "type": "string"
                 },
                 "highlightedDate": {
+                    "type": "string"
+                },
+                "viewed": {
+                    "type": "boolean"
+                },
+                "favourited": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "note": {
+            "type": "object",
+            "required": [
+                "_id",
+                "note",
+                "createdDateTime",
+                "editedDateTime"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "createdDateTime": {
+                    "type": "string"
+                },
+                "editedDateTime": {
                     "type": "string"
                 }
             }

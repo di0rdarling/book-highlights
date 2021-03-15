@@ -1,0 +1,25 @@
+{
+    "header": {
+        "connection": "close",
+        "content-length": "7",
+        "content-type": "text/plain; charset=utf-8",
+        "date": "Sat, 13 Mar 2021 09:07:07 GMT",
+        "etag": "W/\"7-rM9AyJuqT6iOan/xHh+AW+7K/T8\"",
+        "x-powered-by": "Express"
+    },
+    "req": {
+        "data": {
+            "bookTitle": "Test book",
+            "highlightedDate": "2011-10-05T14:48:00.000Z",
+            "text": "Test text"
+        },
+        "headers": {
+            "content-type": "application/json",
+            "user-agent": "node-superagent/3.8.3"
+        },
+        "method": "POST",
+        "url": "http://127.0.0.1:54128/highlight"
+    },
+    "status": 201,
+    "text": "Created"
+}

@@ -1,28 +1,41 @@
 import express from 'express';
 import Highlight from '../models/highlight';
-import HighlightCreate from '../models/highlightCreate';
+import HighlightCreate from '../models/highlight';
+import mongoose from 'mongoose';
+import { config } from '../config/config';
 
 export const highlightRouter = express.Router();
+mongoose.set('bufferCommands', false)
 
 highlightRouter.post("/highlight", async (request, response) => {
-    await new HighlightCreate(request.body)
-        .save()
-        .then((highlight) => {
-            response.sendStatus(201);
-        })
-        .catch((err) => {
-            response.status(500).send(err);
-        });
+    mongoose.connect(config.mongoUri, { useNewUrlParser: true, useUnifiedTopology: true }).then(async () => {
+        await new HighlightCreate(request.body)
+            .save()
+            .then((highlight) => {
+                response.sendStatus(201);
+            })
+            .catch((err) => {
+                response.status(500).send(err);
+            });
+    }).catch(err => {
+        console.log(err)
+    });
+
 });
 
 highlightRouter.get("/highlights", async (request, response) => {
-    await Highlight.find({})
-        .then((highlights) => {
-            response.status(200).send(highlights);
-        })
-        .catch((err) => {
-            response.status(500).send(err);
-        });
+    mongoose.connect(config.mongoUri, { useNewUrlParser: true, useUnifiedTopology: true }).then(async () => {
+        await Highlight
+            .find({})
+            .then((highlights) => {
+                response.status(200).send(highlights);
+            })
+            .catch((err) => {
+                response.status(500).send(err);
+            });
+    }).catch(err => {
+        console.log(err)
+    });
 });
 
 highlightRouter.get("/highlight/:_id", async (request, response) => {
@@ -40,8 +53,9 @@ highlightRouter.put("/highlight/:_id", async (request, response) => {
     await Highlight.findByIdAndUpdate(request.params._id, request, {
         new: true,
     })
-        .then((projectEdit) => {
-            response.status(200).send(projectEdit);
+        .then((highlightEdit) => {
+            console.log('he', highlightEdit)
+            response.status(200).send(highlightEdit);
         })
         .catch((err) => {
             response.status(500).send(err);

@@ -1,14 +1,14 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { HighlightCreate } from './highlightCreate';
 
-export interface Highlight extends Document, HighlightCreate {
-    _id: string,
+export interface Highlight extends Document {
+    bookTitle: string,
+    bookId?: string,
+    text: string,
+    note?: string,
+    highlightedDate: Date,
 }
 
 export const HighlightSchema: Schema = new Schema({
-    _id: {
-        type: String
-    },
     bookTitle: {
         type: String,
     },
@@ -19,7 +19,7 @@ export const HighlightSchema: Schema = new Schema({
         type: String,
         required: true,
         validate(value) {
-            if (value === undefined || value.length < 1) throw new Error("A highlight must contain a a text string.");
+            if (value === undefined) throw new Error("A highlight must contain a a text string.");
         },
     },
     note: {
@@ -27,6 +27,12 @@ export const HighlightSchema: Schema = new Schema({
     },
     highlightedDate: {
         type: Date
+    },
+    viewed: {
+        type: Boolean
+    },
+    favourited: {
+        type: Boolean
     }
 });
 

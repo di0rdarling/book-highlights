@@ -1,21 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { HighlightSchema, Highlight } from './highlight';
 import { Flag } from './enums/flag';
-import { EntityCreate } from './entityCreate';
+import { Note } from './note';
 
-export interface Entity extends Document, EntityCreate {
-    _id: string,
+export interface Entity extends Document {
+    highlight: Highlight,
+    description: string,
+    flag: Flag,
+    note: Note[]
 }
 
 const EntitySchema: Schema = new Schema({
-    _id: {
-        type: String,
-    },
-    highlights: {
-        type: [HighlightSchema],
+    highlight: {
+        type: HighlightSchema,
         required: true,
         validate(value) {
-            if (value === undefined) throw new Error("An entity must contain at least one highlight.");
+            if (value === undefined) throw new Error("An entity must contain a highlight.");
         },
     },
     description: {
@@ -26,7 +26,10 @@ const EntitySchema: Schema = new Schema({
         enum: Flag
     },
     note: {
-        type: String,
+        type: Array,
+        validate(value) {
+            if (value.length === 0) throw new Error("An entity must contain at least one note.");
+        },
     }
 });
 

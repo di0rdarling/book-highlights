@@ -1,11 +1,10 @@
 import express from 'express';
 import Entity from '../models/entity';
-import EntityCreate from '../models/entityCreate';
 
 export const entityRouter = express.Router();
 
 entityRouter.post("/entity", async (request, response) => {
-    await new EntityCreate(request.body)
+    await new Entity(request.body)
         .save()
         .then((entity) => {
             response.sendStatus(201);
