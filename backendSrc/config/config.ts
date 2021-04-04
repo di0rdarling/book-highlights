@@ -1,13 +1,31 @@
 import 'dotenv/config'
 
+//API
 const DEFAULT_API_PORT: number = 8080;
 export const API_PORT = process.env.API_PORT || DEFAULT_API_PORT;
+const DEFAULT_HIGHLIGHTS_BASE_URL: string = '/highlights'
+export const HIGHLIGHTS_BASE_URL = process.env.HIGHLIGHTS_BASE_URL || DEFAULT_HIGHLIGHTS_BASE_URL;
+
+//Mongodb
 const DEFAULT_DATABASE: string = 'highlights';
 export const DATABASE = process.env.DATABASE || DEFAULT_DATABASE;
 const DEFAULT_MONGODB_URI: string = `mongodb://localhost:27017/${DATABASE}`
 export const MONGODB_URI = process.env.MONGODB_URI || DEFAULT_MONGODB_URI;
-const DEFAULT_HIGHLIGHTS_BASE_URL: string = '/highlights'
-export const HIGHLIGHTS_BASE_URL = process.env.HIGHLIGHTS_BASE_URL || DEFAULT_HIGHLIGHTS_BASE_URL;
+
+//Swagger
 const DEFAULT_SWAGGER_PATH: string = '/api-docs'
 export const SWAGGER_PATH = process.env.SWAGGER_PATH || DEFAULT_SWAGGER_PATH;
+
+//Readwise
+const DEFAULT_READWISE_AUTH_TOKEN: string = ''
+export const READWISE_AUTH_TOKEN = process.env.READWISE_AUTH_TOKEN || DEFAULT_READWISE_AUTH_TOKEN;
+const DEFAULT_READWISE_LIST_HIGHLIGHTS_URL: string = 'https://readwise.io/api/v2/highlights/'
+export const READWISE_LIST_HIGHLIGHTS_URL = process.env.READWISE_LIST_HIGHLIGHTS_URL || DEFAULT_READWISE_LIST_HIGHLIGHTS_URL;
+const DEFAULT_READWISE_LIST_HIGHLIGHTS_PAGE_SIZE: number = 1000
+export const READWISE_LIST_HIGHLIGHTS_PAGE_SIZE = process.env.READWISE_LIST_HIGHLIGHTS_PAGE_SIZE || DEFAULT_READWISE_LIST_HIGHLIGHTS_PAGE_SIZE;
+
+const DEFAULT_READWISE_LIST_BOOKS_URL: string = 'https://readwise.io/api/v2/books'
+export const READWISE_LIST_BOOKS_URL = process.env.READWISE_LIST_BOOKS_URL || DEFAULT_READWISE_LIST_BOOKS_URL;
+const DEFAULT_READWISE_LIST_BOOKS_PAGE_SIZE: number = 1000
+export const READWISE_LIST_BOOKS_PAGE_SIZE = process.env.READWISE_LIST_BOOKS_PAGE_SIZE || DEFAULT_READWISE_LIST_BOOKS_PAGE_SIZE;
 

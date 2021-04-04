@@ -1,13 +1,16 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import { postHighlight, getHighlightById, getHighlights } from '../controllers/highlightsController'
+import { postHighlight, getHighlightById, getHighlights, syncReadwiseHighlights, deleteHighlightById, deleteHighlights } from '../controllers/highlightsController'
 
 export const router = express.Router();
-mongoose.set('bufferCommands', false)
 
 router.route('/').post(postHighlight);
 
 router.route('/').get(getHighlights);
 
+router.route('/sync').get(syncReadwiseHighlights);
+
 router.route('/:_id').get(getHighlightById);
 
+router.route('/').delete(deleteHighlights);
+
+router.route('/:_id').delete(deleteHighlightById);

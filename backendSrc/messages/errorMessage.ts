@@ -16,3 +16,11 @@ export function missingHighlightFieldsMessage(missingFields: string[]): string {
 }
 
 export const highlightNotFound = "A highlight with the given Id does not exist."
+
+export const cannotFetchHighlights = "Unable to fetch highlights."
+
+export const cannotFetchHighlight = "Unable to fetch highlight."
+
+export const errorCreatingHighlight = "Unable to fetch highlight."
+
+export const errorSyncingReadwiseHighlights = "Unable to sync Readwise highlight."

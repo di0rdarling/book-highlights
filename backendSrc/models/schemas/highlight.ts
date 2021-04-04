@@ -8,9 +8,19 @@ export interface Highlight extends Omit<HighlightModel, '_id'>, Document { }
 export const HighlightSchema: Schema = new Schema({
     bookTitle: {
         type: String,
+        required: true,
+        validate(value) {
+            if (value === undefined) throw new Error("A highlight must contain a book title.");
+        },
+    },
+    authors: {
+        type: Array,
+    },
+    coverImageUrl: {
+        type: String,
     },
     bookId: {
-        type: String,
+        type: Number,
     },
     text: {
         type: String,

@@ -1,4 +1,4 @@
-import { createHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights } from '../services/highlightsService';
+import { createHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights } from '../services/highlightsService';
 
 /**
  * Posts a highlight.
@@ -19,10 +19,37 @@ export async function getHighlightById(req, res) {
 }
 
 /**
+ * Syncs all readwise highlights.
+ * @param {object} req http request.
+ * @param {object} res http response.
+ */
+export async function syncReadwiseHighlights(req, res) {
+    syncAllReadwiseHighlights(req, res)
+}
+
+/**
  * Gets all highlights.
  * @param {object} req http request.
  * @param {object} res http response.
  */
 export async function getHighlights(req, res) {
     getAllHighlights(req, res)
+}
+
+/**
+ * Deletes the highlight with the matching ID.
+ * @param {object} req http request.
+ * @param {object} res http response.
+ */
+export async function deleteHighlights(req, res) {
+    deleteAllHighlights(req, res)
+}
+
+/**
+ * Deletes the highlight with the matching ID.
+ * @param {object} req http request.
+ * @param {object} res http response.
+ */
+export async function deleteHighlightById(req, res) {
+    deleteHighlight(req, res)
 }
