@@ -2,8 +2,8 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from '../swagger.json'
 import cors from 'cors';
-import { entityRouter } from './routes/entityRoutes'
-import { highlightRouter } from './routes/highlightRoutes'
+import { router } from './routes/highlightRoutes'
+import { HIGHLIGHTS_BASE_URL, SWAGGER_PATH } from './config/config';
 
 export let app = express();
 app.use(express.json());
@@ -11,10 +11,19 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(entityRouter);
-app.use(highlightRouter);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+/**
+ * Highlight routes.
+ */
+app.use(HIGHLIGHTS_BASE_URL, router);
 
+/**
+ * Swagger route.
+ */
+app.use(SWAGGER_PATH, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+/**
+ * 404 Route.
+ */
 app.use((request, result) => {
-    result.status(400).send({ url: request.originalUrl + " not found" });
+    result.status(404).send({ url: request.originalUrl + " not found" });
 });

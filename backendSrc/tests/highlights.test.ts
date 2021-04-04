@@ -2,27 +2,27 @@
 import express from 'express';
 import request from 'supertest';
 import mongoose from 'mongoose';
-import Highlight from '../models/highlight';
-import { highlightRouter } from '../routes/highlightRoutes';
-import { HttpResponse } from './models/httpResponse';
-import { HighlightCreate } from './models/highlight';
-import { Highlight as HighlightModel } from './models/highlight';
+import { router } from '../routes/highlightRoutes';
+import { HighlightCreate } from '../models/highlightCreate';
+import { HIGHLIGHTS_BASE_URL, MONGODB_URI } from '../config/config';
+import { app } from '../app';
+import { Highlight as HighlightFull } from '../models/highlight';
+import Highlight from '../models/schemas/highlight'
+import { highlightNotFound, missingHighlightFieldsMessage } from '../errorMessage';
 
 jest.setTimeout(40000)
-const MONGO_TEST_URI = 'mongodb://localhost:27017/test'
-const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(highlightRouter);
+app.use(router);
 
-describe('insert', () => {
+describe('Tests Highlight Routes', () => {
     beforeEach((done) => {
-        mongoose.connect(MONGO_TEST_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+        mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
             .then(() => {
                 mongoose.connection.db.dropDatabase();
                 done();
             }).catch(err => {
-                console.log(err)
+                throw new Error('Unable to connect to database.')
             });
     })
 
@@ -31,68 +31,102 @@ describe('insert', () => {
         let highlightCreate: HighlightCreate = {
             bookTitle: 'Test book',
             text: 'Test text',
-            highlightedDate: new Date('2011-10-05T14:48:00.000Z'),
-            viewed: false,
             favourited: false
         }
-        let expectedHttpResponse: HttpResponse = {
-            status: 201,
-            text: 'Created'
+
+        let expectedHighlightPost = {
+            _id: null,
+            bookTitle: highlightCreate.bookTitle,
+            text: highlightCreate.text,
+            favourited: highlightCreate.favourited,
+            viewed: false,
+            highlightedDate: new Date()
         }
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post("/highlight")
+            .post(HIGHLIGHTS_BASE_URL)
             .send(highlightCreate);
 
-        //Assert the response.
-        expect(actualHttpResponse.status).toBe(expectedHttpResponse.status)
-        expect(actualHttpResponse.text).toBe(expectedHttpResponse.text)
 
-        //Assert the database.
-        await mongoose.connect(MONGO_TEST_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        //Assert
+        expect(actualHttpResponse.status).toBe(201)
+        //Validate the dates separately, ignoring seconds and milliseconds.
+        let actualHighlightedDate = actualHttpResponse.body.highlightedDate;
+        expect(isDatesEqual(actualHighlightedDate, new Date().toISOString())).toBe(true);
+        delete actualHttpResponse.body.highlightedDate;
+        delete expectedHighlightPost.highlightedDate;
+        //Set the returned id as this was not known before the request was made.
+        expectedHighlightPost._id = actualHttpResponse.body._id;
+        expect(actualHttpResponse.body !== expectedHighlightPost)
+
+        //Assert database has been correctly updated.
+        await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         let highlights = await Highlight.find({});
-        let mappedHighlights = highlights.map(h => mapDbHighlightToHighlightCreate(h));
-        expect(mappedHighlights).toEqual([highlightCreate]);
+        let mappedHighlights = highlights.map(h => mapHighlightSchemaHighlight(h));
+        expect(mappedHighlights).toHaveLength(1)
+        expectedHighlightPost.highlightedDate = new Date();
+        expect(isHighlightsEqual(expectedHighlightPost, mappedHighlights[0])).toBe(true)
     })
 
-    it('Gets all Highlight objects', async () => {
+    it('Returns 400 Bad Request when the mandatory fields are not provided when creating a highlight', async () => {
+        //Setup
+        let missingHighlightFields = [
+            'text',
+            'bookTitle',
+            'favourited'
+        ]
+
+        //Run test
+        const actualHttpResponse = await request(app)
+            .post(HIGHLIGHTS_BASE_URL)
+            .send({});
+
+        //Assert
+        expect(actualHttpResponse.status).toBe(400)
+        expect(actualHttpResponse.text).toEqual(missingHighlightFieldsMessage(missingHighlightFields))
+    })
+
+    it('Gets all existing Highlights.', async () => {
         //Setup
         let existingHighlights: any[] = [{
             bookTitle: 'Test book 1',
             text: 'Test text 1',
-            highlightedDate: '2011-10-05T14:48:00.000Z',
+            highlightedDate: new Date('2011-10-05T14:48:00.000Z'),
             viewed: false,
             favourited: false
         }, {
             bookTitle: 'Test book 2',
             text: 'Test textssssssss 2',
-            highlightedDate: '2011-10-05T14:48:00.000Z',
+            highlightedDate: new Date('2011-10-21T14:48:00.000Z'),
             viewed: false,
             favourited: false
         }]
 
-        let expectedHttpResponse: HttpResponse = {
-            status: 200,
-            text: '',
-            body: existingHighlights
-        }
-        await mongoose.connect(MONGO_TEST_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights);
+        await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
+            highlights.map((highlight, i) => {
+                existingHighlights[i]._id = highlight._id;
+            })
+        }).catch(err => {
+            throw new Error('Unable to insert highlights to database.')
+        });
 
         //Run test
         const actualHttpResponse = await request(app)
-            .get("/highlights");
+            .get(HIGHLIGHTS_BASE_URL);
 
-        //Assert response.
-        let mappedBody = actualHttpResponse.body.map(h => mapDbHighlightToHighlightCreate(h));
-        expect(actualHttpResponse.status).toBe(expectedHttpResponse.status);
-        expect(mappedBody).toEqual(expectedHttpResponse.body);
+        //Assert
+        expect(actualHttpResponse.status).toBe(200);
+        expect(actualHttpResponse.body).toHaveLength(2);
+        actualHttpResponse.body.map((highlight, i) => {
+            expect(isHighlightsEqual(existingHighlights[i], highlight)).toBe(true)
+        })
     })
 
-    it('Edits a Highlight using the ID', async () => {
+    it('Gets the highlight with the matching Id.', async () => {
         //Setup
-        let existingHighlights: HighlightModel[] = [{
+        let existingHighlights: any[] = [{
             bookTitle: 'Test book 1',
             text: 'Test text 1',
             highlightedDate: new Date('2011-10-05T14:48:00.000Z'),
@@ -100,48 +134,107 @@ describe('insert', () => {
             favourited: false
         }, {
             bookTitle: 'Test book 2',
-            text: 'Test texts 2',
-            highlightedDate: new Date('2011-10-05T14:48:00.000Z'),
+            text: 'Test textssssssss 2',
+            highlightedDate: new Date('2011-10-21T14:48:00.000Z'),
             viewed: false,
             favourited: false
         }]
 
-        await mongoose.connect(MONGO_TEST_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights);
-        let highlights = await Highlight.find({});
+        await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
+            highlights.map((highlight, i) => {
+                existingHighlights[i]._id = highlight._id;
+            })
+        }).catch(err => {
+            throw new Error('Unable to insert highlights to database.')
+        });
 
-        //Edit the highlight.
-        let editedHighlight = highlights[0];
-        editedHighlight.bookTitle = 'Edited Title'
-
-        let expectedHttpResponse: HttpResponse = {
-            status: 200,
-            text: '',
-            body: editedHighlight
-        }
+        let selectedHighlight = existingHighlights[0]
 
         //Run test
         const actualHttpResponse = await request(app)
-            .put(`/highlight/${editedHighlight.id}`)
-            .send(editedHighlight);
+            .get(`${HIGHLIGHTS_BASE_URL}/${selectedHighlight._id}`);
 
-        //Assert response.
-        expect(actualHttpResponse.status).toBe(expectedHttpResponse.status);
-        expect(actualHttpResponse.body).toEqual(expectedHttpResponse.body);
+        //Assert
+        expect(actualHttpResponse.status).toBe(200);
+        expect(isHighlightsEqual(selectedHighlight, actualHttpResponse.body)).toBe(true)
+    })
+
+    it('Returns 404 Not Found when a highlight with the given ID is not found.', async () => {
+        //Setup
+
+        let nonExistingHighlightId = '6069aadcee0b8050bf877b23'
+
+        //Run test
+        const actualHttpResponse = await request(app)
+            .get(`${HIGHLIGHTS_BASE_URL}/${nonExistingHighlightId}`);
+
+        //Assert
+        expect(actualHttpResponse.status).toBe(404);
+        expect(actualHttpResponse.text).toEqual(highlightNotFound)
     })
 })
 
 /**
- * Maps a database type highlight to a highlight create model.
- * @param dbHighlight database highlight.
- * @returns a highlight create model.
+ * Validates if the given highlights are equal.
+ * @param expectedHighlight expected highlight.
+ * @param actualHighlight actual highlight.
+ * @returns true, if the two highlights are equal.
  */
-function mapDbHighlightToHighlightCreate(dbHighlight: any): HighlightCreate {
-    return {
-        bookTitle: dbHighlight.bookTitle,
-        text: dbHighlight.text,
-        highlightedDate: dbHighlight.highlightedDate,
-        viewed: dbHighlight.viewed,
-        favourited: dbHighlight.favourited
+function isHighlightsEqual(expectedHighlight: HighlightFull, actualHighlight: HighlightFull) {
+    let isEqual = true;
+    if (actualHighlight._id.toString() !== expectedHighlight._id.toString()) {
+        isEqual = false
+    }
+    if (actualHighlight.bookTitle !== expectedHighlight.bookTitle) {
+        isEqual = false
+    }
+    if (actualHighlight.text !== expectedHighlight.text) {
+        isEqual = false
+    }
+    if (actualHighlight.viewed !== expectedHighlight.viewed) {
+        isEqual = false
+    }
+    if (actualHighlight.favourited !== expectedHighlight.favourited) {
+        isEqual = false
+    }
+    if (isDatesEqual(actualHighlight.highlightedDate, expectedHighlight.highlightedDate) !== true) {
+        isEqual = false
+    }
+    return isEqual;
+}
+
+/**
+ * Validates if the given dates are equal, ignoring the time. 
+ * @param expectedDateIsoString expected date iso string.
+ * @param actualDateIsoString actual date iso string.
+ */
+function isDatesEqual(expectedDateIsoString, actualDateIsoString) {
+    let expectedDate: Date = new Date(expectedDateIsoString);
+    let actualDate: Date = new Date(actualDateIsoString);
+    if (expectedDate.toLocaleDateString() === actualDate.toLocaleDateString()) {
+        return true;
+    } else {
+        return false;
     }
 }
+
+/**
+ * Maps a highlight schema to a highlight model.
+ * @param highlightSchema highlight  object.
+ * @returns a mapped highlight.
+ */
+function mapHighlightSchemaHighlight(highlightSchema: any): HighlightFull {
+
+    let mappedHighlight: HighlightFull = {
+        _id: highlightSchema._id,
+        bookTitle: highlightSchema.bookTitle,
+        text: highlightSchema.text,
+        highlightedDate: new Date(highlightSchema.highlightedDate),
+        viewed: highlightSchema.viewed,
+        favourited: highlightSchema.favourited
+    }
+
+    return mappedHighlight;
+}
+
