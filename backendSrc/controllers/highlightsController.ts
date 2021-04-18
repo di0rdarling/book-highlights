@@ -1,4 +1,5 @@
-import { createHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights } from '../services/highlightsService';
+import { createHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights, sendHighlights as sendRandomHighlights } from '../services/highlightsService';
+
 
 /**
  * Posts a highlight.
@@ -52,4 +53,13 @@ export async function deleteHighlights(req, res) {
  */
 export async function deleteHighlightById(req, res) {
     deleteHighlight(req, res)
+}
+
+/**
+ * Sends random highlights to the email in the config.
+ * @param {object} req http request.
+ * @param {object} res http response.
+ */
+export async function sendHighlights(req, res) {
+    sendRandomHighlights(req, res)
 }

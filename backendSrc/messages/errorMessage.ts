@@ -19,6 +19,8 @@ export const highlightNotFound = "A highlight with the given Id does not exist."
 
 export const cannotFetchHighlights = "Unable to fetch highlights."
 
+export const cannotMailHighlights = "Unable to mail highlights."
+
 export const cannotFetchHighlight = "Unable to fetch highlight."
 
 export const errorCreatingHighlight = "Unable to fetch highlight."

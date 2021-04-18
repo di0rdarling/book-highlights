@@ -1,12 +1,13 @@
-import { StatusCodes } from 'http-status-codes';
-import { cannotFetchHighlights, highlightNotFound, missingHighlightFieldsMessage, errorCreatingHighlight, errorSyncingReadwiseHighlights } from '../messages/errorMessage';
-import { Highlight as HighlightFull } from '../models/highlight';
+import nodemailer from 'nodemailer';
 import Highlight from '../models/schemas/highlight';
+import NodeCache from 'node-cache';
+import { StatusCodes } from 'http-status-codes';
+import { cannotFetchHighlights, highlightNotFound, missingHighlightFieldsMessage, errorCreatingHighlight, errorSyncingReadwiseHighlights, cannotMailHighlights } from '../messages/errorMessage';
+import { Highlight as HighlightFull } from '../models/highlight';
 import { validateHighlightCreate } from '../validators/highlightsValidator';
-import axios from 'axios';
-import { READWISE_AUTH_TOKEN, READWISE_LIST_HIGHLIGHTS_PAGE_SIZE, READWISE_LIST_HIGHLIGHTS_URL, READWISE_LIST_BOOKS_URL, READWISE_LIST_BOOKS_PAGE_SIZE } from '../config/config';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
 import { highlightDeleted, allHighlightsDeleted } from '../messages/generalMessages';
+import { getHighlights as getReadwiseHighlights, getBooks as getReadwiseBooks } from '../services/readwiseService';
 
 /**
  * Creates a highlight.
@@ -100,66 +101,150 @@ export async function deleteAllHighlights(req, resp) {
  */
 export async function syncReadwiseHighlights(req, resp) {
 
-    let readwiseGetHighlightsUrl = `${READWISE_LIST_HIGHLIGHTS_URL}?page=1&page_size=${READWISE_LIST_HIGHLIGHTS_PAGE_SIZE}`
-    let readwiseHighlights = []
-
-    //Get the all the highlights on readwise.
-    while (readwiseGetHighlightsUrl) {
-        let response = await axios({
-            method: 'GET',
-            url: readwiseGetHighlightsUrl,
-            headers: {
-                'Authorization': `Token ${READWISE_AUTH_TOKEN}`
-            }
-        });
-        if (response.status === 200) {
-            let results = response.data.results
-            readwiseHighlights = readwiseHighlights.concat(results);
-            if (response.data.next) {
-                readwiseGetHighlightsUrl = response.data.next;
-            } else {
-                readwiseGetHighlightsUrl = null;
-            }
-        } else {
-            readwiseGetHighlightsUrl = null;
-        }
-    }
-
-    if (readwiseHighlights.length > 0) {
-        let readwiseGetBooksUrl = `${READWISE_LIST_BOOKS_URL}?page=1&page_size=${READWISE_LIST_BOOKS_PAGE_SIZE}`
-        let readwiseBooks = []
-
-        //Get all the books on readwise.
-        while (readwiseGetBooksUrl) {
-            let response = await axios({
-                method: 'GET',
-                url: readwiseGetBooksUrl,
-                headers: {
-                    'Authorization': `Token ${READWISE_AUTH_TOKEN}`
-                }
-            });
-            if (response.status === 200) {
-                let results = response.data.results
-                readwiseBooks = readwiseBooks.concat(results);
-                if (response.data.next) {
-                    readwiseGetBooksUrl = response.data.next;
-                } else {
-                    readwiseGetBooksUrl = null;
-                }
-            } else {
-                readwiseGetBooksUrl = null;
-            }
-        }
+    try {
+        let readwiseHighlights = await getReadwiseHighlights(true)
+        let readwiseBooks = await getReadwiseBooks(true);
 
         //Map each highlight and corresponding book to a full highlight model.
         let mappedHighlights = mapReadwiseHighlightsToHighlights(readwiseHighlights, readwiseBooks);
 
-        await Highlight.insertMany(mappedHighlights).then(highlights => {
-            resp.status(StatusCodes.OK).send(highlights)
+        //Remove any highlights that already exist in the database.
+        await Highlight.find({}).then(async highlights => {
+
+            //This algorithm assumes that each highlight text will be unique.
+            let existingHighlightsText = highlights.map(h => h.text);
+
+            let acceptedNewHighlights = mappedHighlights.filter(highlight => {
+                if (!existingHighlightsText.includes(highlight.text)) {
+                    return highlight;
+                }
+            })
+
+            if (acceptedNewHighlights.length > 1) {
+                await Highlight.insertMany(acceptedNewHighlights).then(highlights => {
+                    resp.status(StatusCodes.OK).send(highlights)
+                }).catch(err => {
+                    throw new Error('Unable to get update highlights database.')
+                })
+            } else {
+                resp.status(StatusCodes.OK).send("All highlights synced and up to date.")
+            }
         }).catch(err => {
-            resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorSyncingReadwiseHighlights)
-        })
-    } else {
-        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Unable to sync highlights") //TODO: ERROR HANDLE PROPERLY.
+            throw new Error('Unable to get existing highlights from database.')
+        });
+
+    } catch (err) {
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorSyncingReadwiseHighlights)
     }
+}
+
+/**
+ * Gets all highlights.
+ * @param req http request.
+ * @param resp http response.
+ */
+export async function sendHighlights(req, resp) {
+    await Highlight.find({}).then(async (highlights) => {
+
+        let randomHighlights = [];
+
+        while (randomHighlights.length < 5) {
+            let randomIndex = Math.floor(Math.random() * highlights.length);
+            randomHighlights.push(highlights[randomIndex]);
+            highlights.splice(randomIndex, 1);
+        }
+
+        let transporter = nodemailer.createTransport({
+            service: "Gmail",
+            auth: {
+                user: 'helenfagbemi@gmail.com',
+                pass: 'Passes30316',
+            },
+            logger: true
+        });
+
+        // send mail with defined transport object
+        await transporter.sendMail({
+            from: '"BrainSpace 🧠" <helenfagbemi@gmail.com>', // sender address
+            to: "helenfagbemi@gmail.com, h.fagbemi@yahoo.co.uk", // list of receivers
+            subject: "BrainSpace Highlights", // Subject line
+            html: `
+
+            <div>
+            <div style='display:flex'>
+              <h3>${randomHighlights[0].bookTitle}</h3>
+              <p  style='margin-top: 20px; margin-left: 8px;'>
+                by ${randomHighlights[0].authors[0]}
+            </p>
+            </div>
+            <div style='height:2px;width:100%; background-color:black;margin-top:-10px; margin-bottom:8px; display:block'> </div>
+            <p>
+            ${randomHighlights[0].text}
+            </p>
+            <div/> 
+            
+            <div>
+            <div style='display:flex'>
+              <h3>${randomHighlights[1].bookTitle}</h3>
+              <p  style='margin-top: 20px; margin-left: 8px;'>
+                by ${randomHighlights[1].authors[0]}
+            </p>
+            </div>
+            <div style='height:2px;width:100%; background-color:black;margin-top:-10px; margin-bottom:8px; display:block'> </div>
+            <p>
+            ${randomHighlights[1].text}
+            </p>
+            <div/> 
+
+            <div>
+            <div style='display:flex'>
+              <h3>${randomHighlights[2].bookTitle}</h3>
+              <p  style='margin-top: 20px; margin-left: 8px;'>
+                by ${randomHighlights[2].authors[0]}
+            </p>
+            </div>
+            <div style='height:2px;width:100%; background-color:black;margin-top:-10px; margin-bottom:8px; display:block'> </div>
+            <p>
+            ${randomHighlights[2].text}
+            </p>
+            <div/> 
+
+            <div>
+            <div style='display:flex'>
+              <h3>${randomHighlights[3].bookTitle}</h3>
+              <p  style='margin-top: 20px; margin-left: 8px;'>
+                by ${randomHighlights[3].authors[0]}
+            </p>
+            </div>
+            <div style='height:2px;width:100%; background-color:black;margin-top:-10px; margin-bottom:8px; display:block'> </div>
+            <p>
+            ${randomHighlights[3].text}
+            </p>
+            <div/> 
+
+            <div>
+            <div style='display:flex'>
+              <h3>${randomHighlights[4].bookTitle}</h3>
+              <p  style='margin-top: 20px; margin-left: 8px;'>
+                by ${randomHighlights[4].authors[0]}
+            </p>
+            </div>
+            <div style='height:2px;width:100%; background-color:black;margin-top:-10px; margin-bottom:8px; display:block'> </div>
+            <p>
+            ${randomHighlights[4].text}
+            </p>
+            <div/> 
+            `,
+        }, (err, response) => {
+            if (err) {
+                resp.status(500).send('Unable to send email.')
+            } else {
+                resp.status(200).send('Email sent.')
+            }
+        });
+
+    }).catch((err) => {
+        console.log(err)
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotMailHighlights)
+    });
 }
