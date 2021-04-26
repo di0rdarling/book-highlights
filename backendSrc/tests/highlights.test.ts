@@ -177,6 +177,45 @@ describe('Tests Highlight Routes', () => {
         expect(actualHttpResponse.text).toEqual(highlightNotFound)
     })
 
+    it('Edits the highlight with the matching Id.', async () => {
+        //Setup
+        let existingHighlights: any[] = [{
+            bookTitle: 'Test book 1',
+            text: 'Test text 1',
+            highlightedDate: new Date('2011-10-05T14:48:00.000Z'),
+            viewed: false,
+            favourited: false
+        }, {
+            bookTitle: 'Test book 2',
+            text: 'Test text 2',
+            highlightedDate: new Date('2011-10-21T14:48:00.000Z'),
+            viewed: false,
+            favourited: false
+        }]
+
+        await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
+            highlights.map((highlight, i) => {
+                existingHighlights[i]._id = highlight._id;
+            })
+        }).catch(err => {
+            throw new Error('Unable to insert highlights to database.')
+        });
+
+        let editedHighlight = existingHighlights[0];
+        editedHighlight.viewed = true;
+        editedHighlight.favourited = true;
+
+        //Run test
+        const actualHttpResponse = await request(app)
+            .put(`${HIGHLIGHTS_BASE_URL}/${editedHighlight._id}`)
+            .send(editedHighlight);
+
+        //Assert
+        expect(actualHttpResponse.status).toBe(200);
+        expect(isHighlightsEqual(editedHighlight, actualHttpResponse.body)).toBe(true)
+    })
+
     it('Deletes the highlight with the matching Id.', async () => {
         //Setup
         let existingHighlights: any[] = [{

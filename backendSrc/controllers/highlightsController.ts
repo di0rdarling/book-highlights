@@ -1,4 +1,4 @@
-import { createHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights, sendHighlights as sendRandomHighlights } from '../services/highlightsService';
+import { createHighlight, editHighlightById as editHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights, sendHighlights as sendRandomHighlights } from '../services/highlightsService';
 
 
 /**
@@ -17,6 +17,15 @@ export async function postHighlight(req, res) {
  */
 export async function getHighlightById(req, res) {
     getHighlight(req, res)
+}
+
+/**
+ * Edits the highlight with the matching ID.
+ * @param {object} req http request.
+ * @param {object} res http response.
+ */
+export async function editHighlightById(req, res) {
+    editHighlight(req, res)
 }
 
 /**

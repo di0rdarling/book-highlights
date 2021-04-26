@@ -56,6 +56,23 @@ export async function getHighlightById(req, resp) {
 }
 
 /**
+ * Edits a highlight by id.
+ * @param req http request.
+ * @param resp http response.
+ */
+export async function editHighlightById(req, resp) {
+    await Highlight.findByIdAndUpdate(req.params._id, req.body, { new: true }).then(highlight => {
+        if (!highlight) {
+            resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
+        } else {
+            resp.status(StatusCodes.OK).send(highlight)
+        }
+    }).catch(err => {
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchHighlights)
+    })
+}
+
+/**
  * Gets all highlights.
  * @param req http request.
  * @param resp http response.
@@ -244,7 +261,6 @@ export async function sendHighlights(req, resp) {
         });
 
     }).catch((err) => {
-        console.log(err)
         resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotMailHighlights)
     });
 }

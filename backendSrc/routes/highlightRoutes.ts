@@ -1,5 +1,6 @@
 import express from 'express';
 import { postHighlight, getHighlightById, getHighlights, syncReadwiseHighlights, deleteHighlightById, deleteHighlights, sendHighlights } from '../controllers/highlightsController'
+import { editHighlightById } from '../services/highlightsService';
 
 export const router = express.Router();
 
@@ -10,6 +11,8 @@ router.route('/').get(getHighlights);
 router.route('/sync').get(syncReadwiseHighlights);
 
 router.route('/:_id').get(getHighlightById);
+
+router.route('/:_id').put(editHighlightById);
 
 router.route('/').delete(deleteHighlights);
 
