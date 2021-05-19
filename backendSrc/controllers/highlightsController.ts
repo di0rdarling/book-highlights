@@ -1,12 +1,12 @@
 import { createHighlight, editHighlightById as editHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights, sendHighlights as sendRandomHighlights } from '../services/highlightsService';
-
-
+const winston = require('winston');
+import logger from '../logging/logger'
 /**
  * Posts a highlight.
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function postHighlight(req, res) {
+export async function postHighlight(req: any, res: any) {
     createHighlight(req, res)
 }
 
@@ -15,7 +15,7 @@ export async function postHighlight(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function getHighlightById(req, res) {
+export async function getHighlightById(req: any, res: any) {
     getHighlight(req, res)
 }
 
@@ -24,7 +24,7 @@ export async function getHighlightById(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function editHighlightById(req, res) {
+export async function editHighlightById(req: any, res: any) {
     editHighlight(req, res)
 }
 
@@ -33,7 +33,7 @@ export async function editHighlightById(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function syncReadwiseHighlights(req, res) {
+export async function syncReadwiseHighlights(req: any, res: any) {
     syncAllReadwiseHighlights(req, res)
 }
 
@@ -42,7 +42,8 @@ export async function syncReadwiseHighlights(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function getHighlights(req, res) {
+export async function getHighlights(req: any, res: any) {
+    logger.info('server.highlights.get.all.called')
     getAllHighlights(req, res)
 }
 
@@ -51,7 +52,7 @@ export async function getHighlights(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function deleteHighlights(req, res) {
+export async function deleteHighlights(req: any, res: any) {
     deleteAllHighlights(req, res)
 }
 
@@ -60,7 +61,7 @@ export async function deleteHighlights(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function deleteHighlightById(req, res) {
+export async function deleteHighlightById(req: any, res: any) {
     deleteHighlight(req, res)
 }
 
@@ -69,6 +70,6 @@ export async function deleteHighlightById(req, res) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function sendHighlights(req, res) {
+export async function sendHighlights(req: any, res: any) {
     sendRandomHighlights(req, res)
 }

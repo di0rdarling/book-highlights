@@ -1,15 +1,17 @@
-import express from 'express';
-import swaggerUi from 'swagger-ui-express'
-import swaggerDocument from '../swagger.json'
-import cors from 'cors';
-import { router } from './routes/highlightRoutes'
-import { HIGHLIGHTS_BASE_URL, SWAGGER_PATH } from './config/config';
+const express = require('express');
+const swaggerUi = require('swagger-ui-express')
+const swaggerDocument = require('../swagger.json')
+const cors = require('cors');
+const { router } = require('./routes/highlightRoutes')
+const { HIGHLIGHTS_BASE_URL, SWAGGER_PATH } = require('./config/config');
+const morgan = require('morgan');
 
-export let app = express();
+let app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('combined'))
 
 /**
  * Highlight routes.
@@ -24,6 +26,8 @@ app.use(SWAGGER_PATH, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 /**
  * 404 Route.
  */
-app.use((request, result) => {
+app.use((request: any, result: any) => {
     result.status(404).send({ url: request.originalUrl + " not found" });
 });
+
+export default app;

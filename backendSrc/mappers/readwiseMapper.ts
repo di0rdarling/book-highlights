@@ -6,7 +6,7 @@ import { Highlight } from "../models/highlight";
  * @param readwiseBooks readwise books
  */
 export function mapReadwiseHighlightsToHighlights(readwiseHighlight: any[], readwiseBooks: any[]): Highlight[] {
-    let mappedHighlights = [];
+    let mappedHighlights: Highlight[] = [];
     readwiseHighlight.map(readwiseHighlight => {
         mappedHighlights.push(mapReadwiseHighlightToHighlight(readwiseHighlight, readwiseBooks))
     })
@@ -18,14 +18,15 @@ export function mapReadwiseHighlightsToHighlights(readwiseHighlight: any[], read
  * @param readwiseHighlight readwise highlight.
  * @param readwiseBooks readwise books.
  */
-export function mapReadwiseHighlightToHighlight(readwiseHighlight: any, readwiseBooks: any[]): Omit<Highlight, "_id"> {
+export function mapReadwiseHighlightToHighlight(readwiseHighlight: any, readwiseBooks: any[]): Highlight {
 
     let book = readwiseBooks.find(book => book.id === readwiseHighlight.book_id);
     let bookTitle = book && book.title
     let bookAuthors = book && book.author.split(',');
     let coverImageUrl = book && book.cover_image_url;
 
-    let highlight: Omit<Highlight, "_id"> = {
+    let highlight: Highlight = {
+        _id: null,
         text: readwiseHighlight.text,
         highlightedDate: readwiseHighlight.highlighted_at || new Date(),
         bookId: readwiseHighlight.book_id,

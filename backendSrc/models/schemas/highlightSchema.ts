@@ -1,7 +1,5 @@
-import { Schema, Document } from 'mongoose';
-import { MongoDbConnection } from '../../database/mongoDbConnection';
+import { Schema, Document, model } from 'mongoose';
 import { Highlight as HighlightModel } from '../highlight';
-
 
 export interface Highlight extends Omit<HighlightModel, '_id'>, Document { }
 
@@ -9,7 +7,7 @@ export const HighlightSchema: Schema = new Schema({
     bookTitle: {
         type: String,
         required: true,
-        validate(value) {
+        validate(value: string) {
             if (value === undefined) throw new Error("A highlight must contain a book title.");
         },
     },
@@ -25,7 +23,7 @@ export const HighlightSchema: Schema = new Schema({
     text: {
         type: String,
         required: true,
-        validate(value) {
+        validate(value: string) {
             if (value === undefined) throw new Error("A highlight must contain a a text string.");
         },
     },
@@ -42,4 +40,4 @@ export const HighlightSchema: Schema = new Schema({
     versionKey: false
 });
 
-export default new MongoDbConnection().connection.model('Highlight', HighlightSchema)
+export default model<Highlight>("Highlight", HighlightSchema)

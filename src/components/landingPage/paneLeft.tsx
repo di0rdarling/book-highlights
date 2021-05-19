@@ -1,5 +1,5 @@
 import React, { } from 'react';
-import { IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Button, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { palette } from '../../palette';
 import { Highlight } from '../../models/highlight';
 import HighlightContainer from './highlightContainer';
@@ -35,11 +35,18 @@ const useStyles = makeStyles(theme => ({
     highlightsAction: {
         display: 'flex',
         justifyContent: 'center'
+    },
+    noHighlightsDisplay: {
+        textAlign: 'center',
+    },
+    noHighlightsFoundText: {
+        fontSize: theme.spacing(3)
     }
 }))
 
 interface PaneLeftProps {
     highlights: Highlight[];
+    syncHighlights: () => Promise<void>;
 }
 
 export default function PaneLeft(props: PaneLeftProps) {
@@ -52,17 +59,28 @@ export default function PaneLeft(props: PaneLeftProps) {
                 <Typography className={classes.paneLeftHeaderText}>{new Date().toDateString()}</Typography>
             </div>
             <div>
-                {props.highlights.length && props.highlights.map((highlight, i) => (
-                    <HighlightContainer highlight={highlight} />
-                ))}
-                <div className={classes.highlightsAction}>
-                    <IconButton className={classes.syncButton}>
-                        <img src={syncIcon} alt='Sync Icon' />
-                    </IconButton>
-                    <IconButton className={classes.doneButton}>
-                        <img src={doneIcon} alt='Done Icon' />
-                    </IconButton>
-                </div>
+                {props.highlights.length > 0 ? (
+                    <>
+                        {props.highlights.length > 0 && props.highlights.map((highlight, i) => (
+                            <HighlightContainer highlight={highlight} />
+                        ))}
+                        <div className={classes.highlightsAction}>
+                            <IconButton className={classes.syncButton}>
+                                <img src={syncIcon} alt='Sync Icon' />
+                            </IconButton>
+                            <IconButton className={classes.doneButton}>
+                                <img src={doneIcon} alt='Done Icon' />
+                            </IconButton>
+                        </div>
+                    </>
+                ) : (
+                    <div className={classes.noHighlightsDisplay}>
+                        <Typography className={classes.noHighlightsFoundText}>No highlights found</Typography>
+                        <Typography >Sync with Kindle?</Typography>
+                        <Button onClick={() => props.syncHighlights()}>Yes</Button>
+                        <Button>No</Button>
+                    </div>
+                )}
             </div>
         </div>
     )

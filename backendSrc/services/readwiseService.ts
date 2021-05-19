@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosPromise, AxiosResponse } from "axios";
 import NodeCache from "node-cache";
 import {
     READWISE_LIST_HIGHLIGHTS_URL,
@@ -27,18 +27,19 @@ export async function getHighlights(allHighlights: boolean): Promise<any[]> {
     let cachedReadwiseHighlights = getCachedHighlights();
     if (cachedReadwiseHighlights === undefined) {
         console.log('No readwise highlights in cache. Querying API.')
-        let readwiseGetHighlightsUrl = `${READWISE_LIST_HIGHLIGHTS_URL}?page=1&page_size=${READWISE_LIST_HIGHLIGHTS_PAGE_SIZE}`
+        let readwiseGetHighlightsUrl: string | undefined = `${READWISE_LIST_HIGHLIGHTS_URL}?page=1&page_size=${READWISE_LIST_HIGHLIGHTS_PAGE_SIZE}`
 
         //Get the all the highlights on readwise.
         while (readwiseGetHighlightsUrl) {
-            let response = await axios({
+            let response: any = await axios({
                 method: 'GET',
                 url: readwiseGetHighlightsUrl,
                 headers: {
                     'Authorization': `Token ${READWISE_AUTH_TOKEN}`
                 }
-            });
-            if (response.status === 200) {
+            })
+
+            if (response && (await response).status === 200) {
                 let results = response.data.results
                 if (!readwiseHighlights) {
                     readwiseHighlights = results;
@@ -48,7 +49,7 @@ export async function getHighlights(allHighlights: boolean): Promise<any[]> {
                 if (response.data.next && allHighlights) {
                     readwiseGetHighlightsUrl = response.data.next;
                 } else {
-                    readwiseGetHighlightsUrl = null;
+                    readwiseGetHighlightsUrl = undefined;
                 }
             } else {
                 throw new Error('Unable to get Readwise Highlights.')
@@ -69,7 +70,7 @@ export async function getHighlights(allHighlights: boolean): Promise<any[]> {
  * @param allBooks if true, will return all books.
  * @returns list of readwise books for the user.
  */
-export async function getBooks(allBooks: boolean): Promise<any[]> {
+export async function getBooks(allBooks: boolean): Promise<any> {
 
     let readwiseBooks;
 
@@ -78,8 +79,8 @@ export async function getBooks(allBooks: boolean): Promise<any[]> {
     let cachedReadwiseBooks = getCachedBooks();
     if (cachedReadwiseBooks === undefined) {
         console.log('No readwise books in cache. Querying API.')
-        let readwiseGetBooksUrl = `${READWISE_LIST_BOOKS_URL}?page=1&page_size=${READWISE_LIST_BOOKS_PAGE_SIZE}`
-        let readwiseBooks = []
+        let readwiseGetBooksUrl: any = `${READWISE_LIST_BOOKS_URL}?page=1&page_size=${READWISE_LIST_BOOKS_PAGE_SIZE}`
+        let readwiseBooks: any = []
 
         //Get all the books on readwise.
         while (readwiseGetBooksUrl) {

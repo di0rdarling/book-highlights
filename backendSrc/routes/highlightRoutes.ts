@@ -1,6 +1,5 @@
 import express from 'express';
-import { postHighlight, getHighlightById, getHighlights, syncReadwiseHighlights, deleteHighlightById, deleteHighlights, sendHighlights } from '../controllers/highlightsController'
-import { editHighlightById } from '../services/highlightsService';
+import { postHighlight, getHighlightById, getHighlights, syncReadwiseHighlights, deleteHighlightById, deleteHighlights, sendHighlights, editHighlightById } from '../controllers/highlightsController'
 
 export const router = express.Router();
 

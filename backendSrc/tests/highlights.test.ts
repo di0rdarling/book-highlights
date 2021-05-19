@@ -3,15 +3,15 @@ import express from 'express';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import axios from 'axios';
-import Highlight from '../models/schemas/highlight'
+import Highlight from '../models/schemas/highlightSchema'
 import { router } from '../routes/highlightRoutes';
 import { HighlightCreate } from '../models/highlightCreate';
 import { HIGHLIGHTS_BASE_URL, MONGODB_URI, READWISE_AUTH_TOKEN, READWISE_LIST_BOOKS_PAGE_SIZE, READWISE_LIST_BOOKS_URL, READWISE_LIST_HIGHLIGHTS_PAGE_SIZE, READWISE_LIST_HIGHLIGHTS_URL } from '../config/config';
-import { app } from '../app';
 import { Highlight as HighlightFull } from '../models/highlight';
 import { highlightNotFound, missingHighlightFieldsMessage } from '../messages/errorMessage';
 import { allHighlightsDeleted, highlightDeleted } from '../messages/generalMessages';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
+import app from '../app';
 
 jest.setTimeout(40000)
 app.use(express.json());
@@ -29,7 +29,7 @@ describe('Tests Highlight Routes', () => {
             });
     })
 
-    it('Creates a new Highlight object', async () => {
+    it.only('Creates a new Highlight object', async () => {
         //Setup
         let highlightCreate: HighlightCreate = {
             bookTitle: 'Test book',
@@ -58,7 +58,7 @@ describe('Tests Highlight Routes', () => {
         let actualHighlightedDate = actualHttpResponse.body.highlightedDate;
         expect(isDatesEqual(actualHighlightedDate, new Date().toISOString())).toBe(true);
         delete actualHttpResponse.body.highlightedDate;
-        delete expectedHighlightPost.highlightedDate;
+        // delete expectedHighlightPost.highlightedDate;
         //Set the returned id as this was not known before the request was made.
         expectedHighlightPost._id = actualHttpResponse.body._id;
         expect(actualHttpResponse.body !== expectedHighlightPost)
@@ -66,7 +66,7 @@ describe('Tests Highlight Routes', () => {
         //Assert database has been correctly updated.
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         let highlights = await Highlight.find({});
-        let mappedHighlights = highlights.map(h => mapHighlightSchemaHighlight(h));
+        let mappedHighlights = highlights.map((h: any) => mapHighlightSchemaHighlight(h));
         expect(mappedHighlights).toHaveLength(1)
         expectedHighlightPost.highlightedDate = new Date();
         expect(isHighlightsEqual(expectedHighlightPost, mappedHighlights[0])).toBe(true);
@@ -107,11 +107,11 @@ describe('Tests Highlight Routes', () => {
         }]
 
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
-            highlights.map((highlight, i) => {
+        await Highlight.insertMany(existingHighlights).then((highlights: any) => {
+            highlights.map((highlight: any, i: number) => {
                 existingHighlights[i]._id = highlight._id;
             })
-        }).catch(err => {
+        }).catch((err: any) => {
             throw new Error('Unable to insert highlights to database.')
         });
 
@@ -122,7 +122,7 @@ describe('Tests Highlight Routes', () => {
         //Assert
         expect(actualHttpResponse.status).toBe(200);
         expect(actualHttpResponse.body).toHaveLength(2);
-        actualHttpResponse.body.map((highlight, i) => {
+        actualHttpResponse.body.map((highlight: any, i: number) => {
             expect(isHighlightsEqual(existingHighlights[i], highlight)).toBe(true)
         })
     })
@@ -144,11 +144,11 @@ describe('Tests Highlight Routes', () => {
         }]
 
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
-            highlights.map((highlight, i) => {
+        await Highlight.insertMany(existingHighlights).then((highlights: any) => {
+            highlights.map((highlight: any, i: number) => {
                 existingHighlights[i]._id = highlight._id;
             })
-        }).catch(err => {
+        }).catch((err: any) => {
             throw new Error('Unable to insert highlights to database.')
         });
 
@@ -194,11 +194,11 @@ describe('Tests Highlight Routes', () => {
         }]
 
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
-            highlights.map((highlight, i) => {
+        await Highlight.insertMany(existingHighlights).then((highlights: any) => {
+            highlights.map((highlight: any, i: number) => {
                 existingHighlights[i]._id = highlight._id;
             })
-        }).catch(err => {
+        }).catch((err: any) => {
             throw new Error('Unable to insert highlights to database.')
         });
 
@@ -233,11 +233,11 @@ describe('Tests Highlight Routes', () => {
         }]
 
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
-            highlights.map((highlight, i) => {
+        await Highlight.insertMany(existingHighlights).then((highlights: any) => {
+            highlights.map((highlight: any, i: number) => {
                 existingHighlights[i]._id = highlight._id;
             })
-        }).catch(err => {
+        }).catch((err: any) => {
             throw new Error('Unable to insert highlights to database.')
         });
 
@@ -254,7 +254,7 @@ describe('Tests Highlight Routes', () => {
         //Assert database has been correctly updated.
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         let highlights = await Highlight.find({});
-        let mappedHighlights = highlights.map(h => mapHighlightSchemaHighlight(h));
+        let mappedHighlights = highlights.map((h: any) => mapHighlightSchemaHighlight(h));
         expect(mappedHighlights).toHaveLength(1)
         expect(isHighlightsEqual(existingHighlights[1], mappedHighlights[0])).toBe(true);
     })
@@ -276,11 +276,11 @@ describe('Tests Highlight Routes', () => {
         }]
 
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        await Highlight.insertMany(existingHighlights).then((highlights, err) => {
-            highlights.map((highlight, i) => {
+        await Highlight.insertMany(existingHighlights).then((highlights: any) => {
+            highlights.map((highlight: any, i: number) => {
                 existingHighlights[i]._id = highlight._id;
             })
-        }).catch(err => {
+        }).catch((err: any) => {
             throw new Error('Unable to insert highlights to database.')
         });
 
@@ -301,11 +301,11 @@ describe('Tests Highlight Routes', () => {
     jest.setTimeout(100000)
     it('Syncs all readwise highlights to the database.', async () => {
         //Setup
-        let readwiseGetHighlightsUrl = `${READWISE_LIST_HIGHLIGHTS_URL}?page=1&page_size=${READWISE_LIST_HIGHLIGHTS_PAGE_SIZE}`
-        let readwiseHighlights = []
+        let readwiseGetHighlightsUrl: string = `${READWISE_LIST_HIGHLIGHTS_URL}?page=1&page_size=${READWISE_LIST_HIGHLIGHTS_PAGE_SIZE}`
+        let readwiseHighlights: any = []
 
         //Get the all the highlights on readwise.
-        while (readwiseGetHighlightsUrl) {
+        while (readwiseGetHighlightsUrl.length) {
             let response = await axios({
                 method: 'GET',
                 url: readwiseGetHighlightsUrl,
@@ -319,18 +319,18 @@ describe('Tests Highlight Routes', () => {
                 if (response.data.next) {
                     readwiseGetHighlightsUrl = response.data.next;
                 } else {
-                    readwiseGetHighlightsUrl = null;
+                    readwiseGetHighlightsUrl = '';
                 }
             } else {
-                readwiseGetHighlightsUrl = null;
+                readwiseGetHighlightsUrl = '';
             }
         }
 
         let readwiseGetBooksUrl = `${READWISE_LIST_BOOKS_URL}?page=1&page_size=${READWISE_LIST_BOOKS_PAGE_SIZE}`
-        let readwiseBooks = []
+        let readwiseBooks: any = []
 
         //Get the all the books on readwise.
-        while (readwiseGetBooksUrl) {
+        while (readwiseGetBooksUrl.length) {
             let response = await axios({
                 method: 'GET',
                 url: readwiseGetBooksUrl,
@@ -344,16 +344,16 @@ describe('Tests Highlight Routes', () => {
                 if (response.data.next) {
                     readwiseGetBooksUrl = response.data.next;
                 } else {
-                    readwiseGetBooksUrl = null;
+                    readwiseGetBooksUrl = '';
                 }
             } else {
-                readwiseGetBooksUrl = null;
+                readwiseGetBooksUrl = '';
             }
         }
 
         //Map each highlight and corresponding book to a full highlight model.
         let expectedSyncedHighlights = mapReadwiseHighlightsToHighlights(readwiseHighlights, readwiseBooks);
-        expectedSyncedHighlights.sort((a, b) => a.bookId - b.bookId);
+        expectedSyncedHighlights.sort((a: any, b: any) => a.bookId - b.bookId);
 
         //Run test
         const actualHttpResponse = await request(app)
@@ -363,11 +363,11 @@ describe('Tests Highlight Routes', () => {
         expect(actualHttpResponse.body).toHaveLength(expectedSyncedHighlights.length);
 
         //Map the ids as this was not known before the request was made.
-        actualHttpResponse.body.sort((a, b) => a.bookId - b.bookId);
-        actualHttpResponse.body.map((highlight, i) => {
+        actualHttpResponse.body.sort((a: any, b: any) => a.bookId - b.bookId);
+        actualHttpResponse.body.map((highlight: any, i: number) => {
             expectedSyncedHighlights[i]._id = highlight._id
         })
-        actualHttpResponse.body.map((actualHighlight, i) => {
+        actualHttpResponse.body.map((actualHighlight: any, i: number) => {
             expect(isHighlightsEqual(expectedSyncedHighlights[i], actualHighlight)).toBeTruthy()
         })
 
@@ -375,9 +375,9 @@ describe('Tests Highlight Routes', () => {
         await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
         let highlights = await Highlight.find({});
         expect(highlights).toHaveLength(expectedSyncedHighlights.length);
-        highlights.sort((a, b) => a.bookId - b.bookId);
-        highlights.map((actualHighlight, i) => {
-            expect(isHighlightsEqual(expectedSyncedHighlights[i], actualHighlight)).toBeTruthy()
+        highlights.sort((a: any, b: any) => a.bookId - b.bookId);
+        highlights.map((actualHighlight: any, i: number) => {
+            expect(isHighlightsEqual(expectedSyncedHighlights[i], actualHighlight as unknown as HighlightFull)).toBeTruthy()
         })
     })
 })
@@ -390,7 +390,7 @@ describe('Tests Highlight Routes', () => {
  */
 function isHighlightsEqual(expectedHighlight: HighlightFull, actualHighlight: HighlightFull) {
     let isEqual = true;
-    if (actualHighlight._id.toString() !== expectedHighlight._id.toString()) {
+    if (actualHighlight._id && expectedHighlight._id && (actualHighlight._id.toString() !== expectedHighlight._id.toString())) {
         isEqual = false
     }
     if (actualHighlight.bookTitle !== expectedHighlight.bookTitle) {
@@ -405,7 +405,7 @@ function isHighlightsEqual(expectedHighlight: HighlightFull, actualHighlight: Hi
     if (actualHighlight.favourited !== expectedHighlight.favourited) {
         isEqual = false
     }
-    if (isDatesEqual(actualHighlight.highlightedDate, expectedHighlight.highlightedDate) !== true) {
+    if (isDatesEqual(actualHighlight.highlightedDate.toISOString(), expectedHighlight.highlightedDate.toISOString()) !== true) {
         isEqual = false
     }
     return isEqual;
@@ -416,7 +416,7 @@ function isHighlightsEqual(expectedHighlight: HighlightFull, actualHighlight: Hi
  * @param expectedDateIsoString expected date iso string.
  * @param actualDateIsoString actual date iso string.
  */
-function isDatesEqual(expectedDateIsoString, actualDateIsoString) {
+function isDatesEqual(expectedDateIsoString: string, actualDateIsoString: string) {
     let expectedDate: Date = new Date(expectedDateIsoString);
     let actualDate: Date = new Date(actualDateIsoString);
     if (expectedDate.toLocaleDateString() === actualDate.toLocaleDateString()) {

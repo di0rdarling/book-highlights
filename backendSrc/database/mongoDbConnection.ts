@@ -1,19 +1,33 @@
-import mongoose from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { MONGODB_URI } from '../config/config';
+import logger from '../logging/logger';
 
-export class MongoDbConnection {
-    connection = null;
+class MongoDbConnection {
+    connection: any;
     constructor() {
+        this.startConnection();
+    }
+
+    async startConnection() {
         try {
-            this.connection = mongoose.createConnection(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-            this.connection.once('open', () => {
-                console.log('Successfully connected to Database.')
-            })
+            this.connection = await mongoose.createConnection(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+            if (this.connection.readyState === 0) {
+                logger.error('server.database.disconnected')
+            } else if (this.connection.readyState === 1) {
+                logger.info('server.database.connected')
+            }
         } catch (err) {
             console.log({
                 message: 'Unable to connect to database',
                 error: err
             })
         }
+
+    }
+
+    useConnection() {
+        return this.connection;
     }
 }
+
+export default MongoDbConnection;

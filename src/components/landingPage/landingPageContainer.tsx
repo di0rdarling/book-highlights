@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Divider, IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Divider, makeStyles, Typography } from '@material-ui/core';
 import { palette } from '../../palette';
-import { getHighlights } from '../../integration/highlights';
+import { getHighlights, syncHighlights } from '../../integration/highlights';
 import { Highlight } from '../../models/highlight';
 import Header from './header';
-import HighlightContainer from './highlightContainer';
-import syncIcon from '../../icons/syncIcon.svg';
-import doneIcon from '../../icons/doneIcon.svg';
 import PaneLeft from './paneLeft';
+import PaneRight from './paneRight';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -95,8 +93,19 @@ export default function LandingPageContainer() {
         }
 
         getUserHighlights();
-
     }, [])
+
+    async function syncUserHighlights() {
+        try {
+            let response = await syncHighlights();
+            if (response.status = 200) {
+                let topHighlights = response.data.slice(0, 5)
+                setHighlights(topHighlights);
+            }
+        } catch (err) {
+            console.log({ err })
+        }
+    }
 
     return (
         <div className={classes.root}>
@@ -104,13 +113,9 @@ export default function LandingPageContainer() {
             <div className={classes.body}>
                 <Typography className={classes.welcomeText}>Welcome, Abi!</Typography>
                 <div className={classes.panes}>
-                    <PaneLeft highlights={highlights} />
+                    <PaneLeft highlights={highlights} syncHighlights={syncUserHighlights} />
                     <Divider orientation='vertical' />
-                    <div className={classes.paneRight}>
-                        <div className={classes.favouritedHighlightsContainer}>
-                            <Typography className={classes.favouritedHighlightsText}>Favourited Highlights</Typography>
-                        </div>
-                    </div>
+                    <PaneRight highlights={highlights} />
                 </div>
             </div>
         </div>

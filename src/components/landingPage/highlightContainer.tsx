@@ -4,6 +4,7 @@ import { palette } from '../../palette';
 import { Highlight } from '../../models/highlight';
 import { StarBorder, Close } from '@material-ui/icons';
 import noteIcon from '../../icons/noteIcon.svg';
+import { editHighlight } from '../../integration/highlights';
 
 const useStyles = makeStyles(theme => ({
     highlightContainerTop: {
@@ -48,13 +49,23 @@ interface HighlightContainerProps {
 export default function HighlightContainer(props: HighlightContainerProps) {
     let classes = useStyles();
 
-    let text = `"${props.highlight.text}"`
+    let text = `"${props.highlight.text}"`;
+
+    console.log(JSON.stringify(props.highlight))
+
+    const favouriteHighlight = async () => {
+        props.highlight.favourited = true;
+        let response = await editHighlight(props.highlight);
+        console.log({ response })
+    }
 
     return (
         <div >
             <div className={classes.highlightContainerTop}>
                 <div className={classes.highlightButtons}>
-                    <IconButton className={classes.highlightButton}>
+                    <IconButton
+                        onClick={() => favouriteHighlight()}
+                        className={classes.highlightButton}>
                         <StarBorder className={classes.highlightButtonIcon} />
                     </IconButton>
                     <IconButton className={classes.noteButton}>
