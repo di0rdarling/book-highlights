@@ -29,7 +29,7 @@ describe('Tests Highlight Routes', () => {
             });
     })
 
-    it.only('Creates a new Highlight object', async () => {
+    it('Creates a new Highlight object', async () => {
         //Setup
         let highlightCreate: HighlightCreate = {
             bookTitle: 'Test book',
@@ -43,7 +43,7 @@ describe('Tests Highlight Routes', () => {
             text: highlightCreate.text,
             favourited: highlightCreate.favourited,
             viewed: false,
-            highlightedDate: new Date()
+            highlightedDate: new Date().toISOString()
         }
 
         //Run test
@@ -68,7 +68,7 @@ describe('Tests Highlight Routes', () => {
         let highlights = await Highlight.find({});
         let mappedHighlights = highlights.map((h: any) => mapHighlightSchemaHighlight(h));
         expect(mappedHighlights).toHaveLength(1)
-        expectedHighlightPost.highlightedDate = new Date();
+        expectedHighlightPost.highlightedDate = new Date().toISOString();
         expect(isHighlightsEqual(expectedHighlightPost, mappedHighlights[0])).toBe(true);
     })
 
@@ -95,13 +95,13 @@ describe('Tests Highlight Routes', () => {
         let existingHighlights: any[] = [{
             bookTitle: 'Test book 1',
             text: 'Test text 1',
-            highlightedDate: new Date('2011-10-05T14:48:00.000Z'),
+            highlightedDate: '2011-10-05T14:48:00.000Z',
             viewed: false,
             favourited: false
         }, {
             bookTitle: 'Test book 2',
             text: 'Test text 2',
-            highlightedDate: new Date('2011-10-21T14:48:00.000Z'),
+            highlightedDate: '2011-10-21T14:48:00.000Z',
             viewed: false,
             favourited: false
         }]
@@ -405,7 +405,7 @@ function isHighlightsEqual(expectedHighlight: HighlightFull, actualHighlight: Hi
     if (actualHighlight.favourited !== expectedHighlight.favourited) {
         isEqual = false
     }
-    if (isDatesEqual(actualHighlight.highlightedDate.toISOString(), expectedHighlight.highlightedDate.toISOString()) !== true) {
+    if (isDatesEqual(actualHighlight.highlightedDate, expectedHighlight.highlightedDate) !== true) {
         isEqual = false
     }
     return isEqual;
@@ -437,7 +437,7 @@ function mapHighlightSchemaHighlight(highlightSchema: any): HighlightFull {
         _id: highlightSchema._id,
         bookTitle: highlightSchema.bookTitle,
         text: highlightSchema.text,
-        highlightedDate: new Date(highlightSchema.highlightedDate),
+        highlightedDate: highlightSchema.highlightedDate,
         viewed: highlightSchema.viewed,
         favourited: highlightSchema.favourited
     }

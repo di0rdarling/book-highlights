@@ -1,5 +1,8 @@
 import { Schema, Document, model } from 'mongoose';
 import { Highlight as HighlightModel } from '../highlight';
+import Connection from '../../database/connection';
+
+new Connection();
 
 export interface Highlight extends Omit<HighlightModel, '_id'>, Document { }
 
@@ -28,7 +31,7 @@ export const HighlightSchema: Schema = new Schema({
         },
     },
     highlightedDate: {
-        type: Date
+        type: String,
     },
     viewed: {
         type: Boolean

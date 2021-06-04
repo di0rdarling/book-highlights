@@ -1,17 +1,13 @@
-import axios, { AxiosPromise, AxiosResponse } from "axios";
-import NodeCache from "node-cache";
+import axios from "axios";
+import { getCachedHighlights, cacheHighlights, getCachedBooks, cacheBooks } from "../cache/readwiseCache";
 import {
     READWISE_LIST_HIGHLIGHTS_URL,
     READWISE_LIST_HIGHLIGHTS_PAGE_SIZE,
     READWISE_AUTH_TOKEN,
     READWISE_LIST_BOOKS_URL,
-    READWISE_LIST_BOOKS_PAGE_SIZE,
-    READWISE_CACHE_HIGHLIGHTS_KEY,
-    READWISE_CACHE_BOOKS_KEY,
-    TTL
+    READWISE_LIST_BOOKS_PAGE_SIZE
 } from "../config/config";
-
-let cache = new NodeCache();
+import logger from '../logging/logger';
 
 /**
  * Gets all readwise highlights.
@@ -26,7 +22,7 @@ export async function getHighlights(allHighlights: boolean): Promise<any[]> {
     //If not available, query API and update cache.
     let cachedReadwiseHighlights = getCachedHighlights();
     if (cachedReadwiseHighlights === undefined) {
-        console.log('No readwise highlights in cache. Querying API.')
+        logger.info('Querying Readwise highlights API.')
         let readwiseGetHighlightsUrl: string | undefined = `${READWISE_LIST_HIGHLIGHTS_URL}?page=1&page_size=${READWISE_LIST_HIGHLIGHTS_PAGE_SIZE}`
 
         //Get the all the highlights on readwise.
@@ -56,10 +52,12 @@ export async function getHighlights(allHighlights: boolean): Promise<any[]> {
             }
         }
 
-        //Cache the fetched highlights.
-        cacheHighlights(readwiseHighlights)
+        if (readwiseHighlights && readwiseHighlights.length) {
+            //Cache the fetched highlights.
+            cacheHighlights(readwiseHighlights)
+        }
     } else {
-        console.log('Readwise highlights sourced from cache.')
+        logger.info('Readwise highlights successfully sourced from cache.')
         readwiseHighlights = cachedReadwiseHighlights;
     }
     return readwiseHighlights;
@@ -78,9 +76,8 @@ export async function getBooks(allBooks: boolean): Promise<any> {
     //If not available, query API and update cache.
     let cachedReadwiseBooks = getCachedBooks();
     if (cachedReadwiseBooks === undefined) {
-        console.log('No readwise books in cache. Querying API.')
+        logger.info('Querying Readwise books API.')
         let readwiseGetBooksUrl: any = `${READWISE_LIST_BOOKS_URL}?page=1&page_size=${READWISE_LIST_BOOKS_PAGE_SIZE}`
-        let readwiseBooks: any = []
 
         //Get all the books on readwise.
         while (readwiseGetBooksUrl) {
@@ -91,9 +88,13 @@ export async function getBooks(allBooks: boolean): Promise<any> {
                     'Authorization': `Token ${READWISE_AUTH_TOKEN}`
                 }
             });
-            if (response.status === 200) {
+            if (response && (await response).status === 200) {
                 let results = response.data.results
-                readwiseBooks = readwiseBooks.concat(results);
+                if (!readwiseBooks) {
+                    readwiseBooks = results;
+                } else {
+                    readwiseBooks = readwiseBooks.concat(results);
+                }
                 if (response.data.next && allBooks) {
                     readwiseGetBooksUrl = response.data.next;
                 } else {
@@ -104,8 +105,10 @@ export async function getBooks(allBooks: boolean): Promise<any> {
             }
         }
 
-        //Cache the fetched books.
-        cacheBooks(readwiseBooks)
+        if (readwiseBooks && readwiseBooks.length) {
+            //Cache the fetched books.
+            cacheBooks(readwiseBooks)
+        }
     } else {
         readwiseBooks = cachedReadwiseBooks;
     }
@@ -113,46 +116,3 @@ export async function getBooks(allBooks: boolean): Promise<any> {
     return readwiseBooks;
 }
 
-/**
- * Retrieves the cached readwise highlights.
- * @returns any cached highlights.
- */
-function getCachedHighlights() {
-    return cache.get(READWISE_CACHE_HIGHLIGHTS_KEY);
-}
-
-/**
- * Caches the given highlights.
- */
-function cacheHighlights(highlights: any[]) {
-    const success = cache.mset([
-        { key: "readwiseHighlights", val: highlights, ttl: TTL as number },
-    ])
-    if (!success) {
-        console.log('Unable to cache readwise highlights.')
-    } else {
-        console.log('Cache successfully updated with readwise highlights.')
-    }
-}
-
-/**
- * Retrieves the cached readwise books.
- * @returns any cached books.
- */
-function getCachedBooks() {
-    return cache.get(READWISE_CACHE_BOOKS_KEY);
-}
-
-/**
- * Caches the given books.
- */
-function cacheBooks(books: any[]) {
-    const success = cache.mset([
-        { key: "readwiseBooks", val: books, ttl: TTL as number },
-    ])
-    if (!success) {
-        console.log('Unable to cache readwise books.')
-    } else {
-        console.log('Cache successfully updated with readwise books.')
-    }
-}

@@ -1,10 +1,10 @@
-const express = require('express');
-const swaggerUi = require('swagger-ui-express')
-const swaggerDocument = require('../swagger.json')
-const cors = require('cors');
-const { router } = require('./routes/highlightRoutes')
-const { HIGHLIGHTS_BASE_URL, SWAGGER_PATH } = require('./config/config');
-const morgan = require('morgan');
+import * as swaggerDocument from '../swagger.json';
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import cors from 'cors';
+import { router } from './routes/highlightRoutes'
+import { HIGHLIGHTS_BASE_URL, SWAGGER_PATH } from './config/config';
+import morgan from 'morgan';
 
 let app = express();
 app.use(express.json());

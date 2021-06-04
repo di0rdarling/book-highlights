@@ -7,20 +7,7 @@ import { validateHighlightCreate } from '../validators/highlightsValidator';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
 import { highlightDeleted, allHighlightsDeleted } from '../messages/generalMessages';
 import { getHighlights as getReadwiseHighlights, getBooks as getReadwiseBooks } from '../services/readwiseService';
-import { connect } from 'mongoose';
 import logger from '../logging/logger';
-import MongoDbConnection from '../database/mongoDbConnection';
-
-let connection = new MongoDbConnection();
-console.log(connection.useConnection().readyState)
-
-async function openMongodbConnection() {
-    await connect('mongodb://localhost:27017/test', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    });
-}
-
 
 /**
  * Creates a highlight.
@@ -34,10 +21,10 @@ export async function createHighlight(req: any, resp: any) {
     if (missingFields.length > 0) {
         resp.status(StatusCodes.BAD_REQUEST).send(missingHighlightFieldsMessage(missingFields))
     } else {
-        highlight.highlightedDate = new Date();
+        highlight.highlightedDate = new Date().toISOString();
         highlight.viewed = false;
         try {
-            openMongodbConnection()
+
             let highlight = await new Highlight(req.body);
             highlight.save((err: any, highlight: any) => {
                 if (err) {
@@ -58,7 +45,7 @@ export async function createHighlight(req: any, resp: any) {
  * @param resp http response.
  */
 export async function getHighlightById(req: any, resp: any) {
-    openMongodbConnection()
+
     await Highlight.findById(req.params._id).then((highlight: any) => {
         if (!highlight) {
             resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
@@ -76,7 +63,7 @@ export async function getHighlightById(req: any, resp: any) {
  * @param resp http response.
  */
 export async function editHighlightById(req: any, resp: any) {
-    openMongodbConnection()
+
     await Highlight.findByIdAndUpdate(req.params._id, req.body, { new: true }).then((highlight: any) => {
         if (!highlight) {
             resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
@@ -94,7 +81,7 @@ export async function editHighlightById(req: any, resp: any) {
  * @param resp http response.
  */
 export async function getHighlights(req: any, resp: any) {
-    // openMongodbConnection()
+    // 
     await Highlight.find({}).then((highlights: any) => {
         resp.status(StatusCodes.OK).send(highlights)
         logger.info('server.highlights.get.all.success')
@@ -111,7 +98,7 @@ export async function getHighlights(req: any, resp: any) {
  * @param resp http response.
  */
 export async function deleteHighlight(req: any, resp: any) {
-    openMongodbConnection()
+
     await Highlight.findByIdAndDelete(req.params._id).then((highlight: any) => {
         resp.status(StatusCodes.OK).send(highlightDeleted)
     }).catch((err: Error) => {
@@ -126,7 +113,7 @@ export async function deleteHighlight(req: any, resp: any) {
  */
 export async function deleteAllHighlights(req: any, resp: any) {
 
-    openMongodbConnection()
+
     await Highlight.deleteMany({}).then((highlight: any) => {
         resp.status(StatusCodes.OK).send(allHighlightsDeleted)
     }).catch((err: Error) => {
@@ -144,7 +131,6 @@ export async function syncReadwiseHighlights(req: any, resp: any) {
     try {
         let readwiseHighlights = await getReadwiseHighlights(true)
         let readwiseBooks = await getReadwiseBooks(true);
-
         if (readwiseHighlights && readwiseBooks && readwiseHighlights.length && readwiseBooks.length) {
             //Map each highlight and corresponding book to a full highlight model.
             let mappedHighlights = mapReadwiseHighlightsToHighlights(readwiseHighlights, readwiseBooks);
@@ -162,7 +148,7 @@ export async function syncReadwiseHighlights(req: any, resp: any) {
                 })
 
                 if (acceptedNewHighlights.length > 1) {
-                    openMongodbConnection()
+
                     await Highlight.insertMany(acceptedNewHighlights).then((highlights: any[]) => {
                         resp.status(StatusCodes.OK).send(highlights)
                     }).catch((err: Error) => {
@@ -175,14 +161,17 @@ export async function syncReadwiseHighlights(req: any, resp: any) {
                 throw new Error('Unable to get existing highlights from database.')
             });
         } else {
-            if (!readwiseHighlights) {
-                console.log(`"readwiseHighlights" is undefined`)
-            } else {
-                console.log(`"readwiseBooks" is undefined`)
+            if (!readwiseHighlights && !readwiseBooks) {
+                logger.error(`readwiseHighlights and readwiseBooks are undefined`)
+            } else if (!readwiseHighlights) {
+                logger.error(`readwiseHighlights is undefined`)
+            } else if (!readwiseBooks) {
+                logger.error(`readwiseBooks is undefined`)
             }
             resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorSyncingReadwiseHighlights)
         }
     } catch (err) {
+        console.log(err)
         resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorSyncingReadwiseHighlights)
     }
 }
@@ -193,7 +182,7 @@ export async function syncReadwiseHighlights(req: any, resp: any) {
  * @param resp http response.
  */
 export async function sendHighlights(req: any, resp: any) {
-    openMongodbConnection()
+
 
     await Highlight.find({}).then(async (highlights: any[]) => {
 
