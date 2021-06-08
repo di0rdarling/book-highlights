@@ -34,6 +34,9 @@ const useStyles = makeStyles(theme => ({
         fontSize: theme.spacing(2),
         fontFamily: 'Roboto, sans-serif',
     },
+    favouritedHighlightButtonIcon: {
+        fill: '#ffba08'
+    },
     bookText: {
         whiteSpace: 'nowrap'
     },
@@ -51,9 +54,7 @@ export default function HighlightContainer(props: HighlightContainerProps) {
 
     let text = `"${props.highlight.text}"`;
 
-    console.log(JSON.stringify(props.highlight))
-
-    const favouriteHighlight = async () => {
+    const favoriteHighlight = async () => {
         props.highlight.favourited = true;
         let response = await editHighlight(props.highlight);
         console.log({ response })
@@ -64,9 +65,9 @@ export default function HighlightContainer(props: HighlightContainerProps) {
             <div className={classes.highlightContainerTop}>
                 <div className={classes.highlightButtons}>
                     <IconButton
-                        onClick={() => favouriteHighlight()}
+                        onClick={() => favoriteHighlight()}
                         className={classes.highlightButton}>
-                        <StarBorder className={classes.highlightButtonIcon} />
+                        <StarBorder className={props.highlight.favourited ? classes.favouritedHighlightButtonIcon : classes.highlightButtonIcon} />
                     </IconButton>
                     <IconButton className={classes.noteButton}>
                         <img src={noteIcon} alt='Note Icon' />

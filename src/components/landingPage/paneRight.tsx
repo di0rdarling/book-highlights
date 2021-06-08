@@ -26,6 +26,10 @@ interface PaneRightProps {
     highlights: Highlight[];
 }
 
+/**
+ * A wrapper component for displaying favourited highlights.
+ * @param props 
+ */
 export default function PaneRight(props: PaneRightProps) {
     let classes = useStyles();
 
@@ -33,9 +37,16 @@ export default function PaneRight(props: PaneRightProps) {
         <div className={classes.paneRight}>
             <div className={classes.favouritedHighlightsContainer}>
                 <Typography className={classes.favouritedHighlightsText}>Favourited Highlights</Typography>
-                {props.highlights.length && props.highlights.map(highlight => (
-                    <HighlightContainer highlight={highlight} />
-                ))}
+                {props.highlights.length ? (
+                    <div>
+                        {props.highlights.map(highlight => (
+                            <HighlightContainer highlight={highlight} />
+                        ))}
+                    </div>
+
+                ) : (
+                        <Typography>No favourited highlights</Typography>
+                    )}
             </div>
         </div>
     )

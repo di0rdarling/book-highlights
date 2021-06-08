@@ -11,7 +11,7 @@ const useStyles = makeStyles(theme => ({
     header: {
         display: 'flex',
         justifyContent: 'space-between',
-        marginBottom: theme.spacing(4)
+        marginBottom: theme.spacing(2)
     },
     logo: {
         display: 'flex'

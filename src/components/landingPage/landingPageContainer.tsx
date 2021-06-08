@@ -6,6 +6,7 @@ import { Highlight } from '../../models/highlight';
 import Header from './header';
 import PaneLeft from './paneLeft';
 import PaneRight from './paneRight';
+import { useHighlightStore, useHighlightStoreState } from '../../context/highlight/highlightContext';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -16,7 +17,6 @@ const useStyles = makeStyles(theme => ({
         height: '100%'
     },
     panes: {
-        marginTop: theme.spacing(4),
         display: 'flex',
         height: '100%'
     },
@@ -76,35 +76,26 @@ const useStyles = makeStyles(theme => ({
  */
 export default function LandingPageContainer() {
     let classes = useStyles();
-    let [highlights, setHighlights] = useState<Highlight[]>([])
+    let [allHighlights, setAllHighlights] = useState<Highlight[]>([])
+    let [randomHighlights, setRandomHighlights] = useState<Highlight[]>([]);
+    let [highlights, dispatch] = useHighlightStore();
+
+    useEffect(() => {
+        console.log('l', highlights.length)
+    }, [])
 
     useEffect(() => {
 
-        async function getUserHighlights() {
-            try {
-                let response = await getHighlights();
-                if (response.status === 200) {
-                    let topHighlights = response.data.slice(0, 5)
-                    setHighlights(topHighlights);
-                }
-            } catch (err) {
-                console.log({ err });
-            }
+        if (allHighlights.length) {
+            let ranHighlights = allHighlights.splice(0, 5)
+            setRandomHighlights(ranHighlights);
         }
+    }, [allHighlights])
 
-        getUserHighlights();
-    }, [])
-
-    async function syncUserHighlights() {
-        try {
-            let response = await syncHighlights();
-            if (response.status = 200) {
-                let topHighlights = response.data.slice(0, 5)
-                setHighlights(topHighlights);
-            }
-        } catch (err) {
-            console.log({ err })
-        }
+    async function syncKindleHighlights() {
+        dispatch({
+            type: 'sync kindle highlights'
+        })
     }
 
     return (
@@ -113,9 +104,9 @@ export default function LandingPageContainer() {
             <div className={classes.body}>
                 <Typography className={classes.welcomeText}>Welcome, Abi!</Typography>
                 <div className={classes.panes}>
-                    <PaneLeft highlights={highlights} syncHighlights={syncUserHighlights} />
+                    <PaneLeft highlights={randomHighlights} syncHighlights={syncKindleHighlights} />
                     <Divider orientation='vertical' />
-                    <PaneRight highlights={highlights} />
+                    <PaneRight highlights={allHighlights.filter(highlight => highlight.favourited)} />
                 </div>
             </div>
         </div>

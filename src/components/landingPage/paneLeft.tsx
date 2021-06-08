@@ -74,13 +74,13 @@ export default function PaneLeft(props: PaneLeftProps) {
                         </div>
                     </>
                 ) : (
-                    <div className={classes.noHighlightsDisplay}>
-                        <Typography className={classes.noHighlightsFoundText}>No highlights found</Typography>
-                        <Typography >Sync with Kindle?</Typography>
-                        <Button onClick={() => props.syncHighlights()}>Yes</Button>
-                        <Button>No</Button>
-                    </div>
-                )}
+                        <div className={classes.noHighlightsDisplay}>
+                            <Typography className={classes.noHighlightsFoundText}>No highlights found</Typography>
+                            <Typography >Sync with Kindle highlights?</Typography>
+                            <Button onClick={() => props.syncHighlights()}>Yes</Button>
+                            <Button>No</Button>
+                        </div>
+                    )}
             </div>
         </div>
     )
