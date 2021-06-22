@@ -1,9 +1,9 @@
 /**
- * Returns the error message for the given missing highlight fields.
- * @param missingFields missing high fields.
+ * Returns the error message for the given missing fields.
+ * @param missingFields missing fields.
  * @returns error message for the given missing fields.
  */
-export function missingHighlightFieldsMessage(missingFields: string[]): string {
+export function missingFieldsMessage(missingFields: string[]): string {
     let errorMessage = 'The following fields are required: ';
 
     for (let i = 0; i < missingFields.length; i++) {
@@ -23,6 +23,12 @@ export const cannotMailHighlights = "Unable to mail highlights."
 
 export const cannotFetchHighlight = "Unable to fetch highlight."
 
-export const errorCreatingHighlight = "Unable to fetch highlight."
+export const errorCreatingObject = (object: string) => `Unable to create ${object}.`
 
 export const errorSyncingReadwiseHighlights = "Unable to sync Readwise highlight."
+
+export const invalidUserPasswordLength = (length: number) => `User password must be ${length} characters or more.`
+
+export const invalidUserPasswordContent = `User password must have at least one uppercase letter and one number.`
+
+export const invalidUserEmail = `User email must be a valid email address.`

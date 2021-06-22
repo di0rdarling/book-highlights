@@ -12,7 +12,7 @@
         "start:server": "tsc && nodemon --ignore './src/**/**.ts' dist/index.js",
         "build": "react-scripts build",
         "test": "tsc && NODE_ENV=test jest --verbose --runInBand"
-    }, 
+    },
     "browserslist": {
         "production": [
             ">0.2%",
@@ -41,6 +41,7 @@
         "@types/react-router-dom": "^5.1.7",
         "@types/supertest": "^2.0.11",
         "axios": "^0.21.1",
+        "bcrypt": "^5.0.1",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "dotenv": "^8.2.0",
@@ -72,6 +73,7 @@
         "@babel/preset-env": "^7.13.10",
         "@babel/preset-typescript": "^7.13.0",
         "@shelf/jest-mongodb": "^1.2.3",
+        "@types/bcrypt": "^5.0.0",
         "@types/cors": "^2.8.10",
         "@types/express": "^4.17.11",
         "@types/jest": "^26.0.22",

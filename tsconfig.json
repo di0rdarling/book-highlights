@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "module": "esnext",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "target": "es6",
     "moduleResolution": "node",
@@ -20,7 +20,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": false
   },
   "lib": [
     "es2015"

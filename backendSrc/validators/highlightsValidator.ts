@@ -1,4 +1,4 @@
-import { HighlightCreate } from "../models/highlightCreate";
+import { HighlightCreate } from "../models/highlights/highlightCreate";
 
 /**
  * Validate a given highlight create object.

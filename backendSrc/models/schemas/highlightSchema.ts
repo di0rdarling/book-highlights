@@ -1,5 +1,5 @@
 import { Schema, Document, model } from 'mongoose';
-import { Highlight as HighlightModel } from '../highlight';
+import { Highlight as HighlightModel } from '../highlights/highlight';
 import Connection from '../../database/connection';
 
 new Connection();

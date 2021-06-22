@@ -5,10 +5,10 @@ import mongoose from 'mongoose';
 import axios from 'axios';
 import Highlight from '../models/schemas/highlightSchema'
 import { router } from '../routes/highlightRoutes';
-import { HighlightCreate } from '../models/highlightCreate';
+import { HighlightCreate } from '../models/highlights/highlightCreate';
 import { HIGHLIGHTS_BASE_URL, MONGODB_URI, READWISE_AUTH_TOKEN, READWISE_LIST_BOOKS_PAGE_SIZE, READWISE_LIST_BOOKS_URL, READWISE_LIST_HIGHLIGHTS_PAGE_SIZE, READWISE_LIST_HIGHLIGHTS_URL } from '../config/config';
-import { Highlight as HighlightFull } from '../models/highlight';
-import { highlightNotFound, missingHighlightFieldsMessage } from '../messages/errorMessage';
+import { Highlight as HighlightFull } from '../models/highlights/highlight';
+import { highlightNotFound, missingFieldsMessage } from '../messages/errorMessage';
 import { allHighlightsDeleted, highlightDeleted } from '../messages/generalMessages';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
 import app from '../app';
@@ -87,7 +87,7 @@ describe('Tests Highlight Routes', () => {
 
         //Assert
         expect(actualHttpResponse.status).toBe(400)
-        expect(actualHttpResponse.text).toEqual(missingHighlightFieldsMessage(missingHighlightFields))
+        expect(actualHttpResponse.text).toEqual(missingFieldsMessage(missingHighlightFields))
     })
 
     it('Gets all existing Highlights.', async () => {

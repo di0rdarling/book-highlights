@@ -6,6 +6,7 @@ import logger from '../logging/logger'
  * @param {object} res http response.
  */
 export async function postHighlight(req: any, res: any) {
+    logger.info('server.highlights.post.called')
     createHighlight(req, res)
 }
 
@@ -15,6 +16,7 @@ export async function postHighlight(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function getHighlightById(req: any, res: any) {
+    logger.info('server.highlights.get.id.called')
     getHighlight(req, res)
 }
 
@@ -24,6 +26,7 @@ export async function getHighlightById(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function editHighlightById(req: any, res: any) {
+    logger.info('server.highlights.put.id.called')
     editHighlight(req, res)
 }
 
@@ -33,6 +36,7 @@ export async function editHighlightById(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function syncReadwiseHighlights(req: any, res: any) {
+    logger.info('server.highlights.sync.called')
     syncAllReadwiseHighlights(req, res)
 }
 
@@ -42,7 +46,7 @@ export async function syncReadwiseHighlights(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function getHighlights(req: any, res: any) {
-    logger.info('server.highlights.get.all.called')
+    logger.info('server.highlights.get.called')
     getAllHighlights(req, res)
 }
 
@@ -52,6 +56,7 @@ export async function getHighlights(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function deleteHighlights(req: any, res: any) {
+    logger.info('server.highlights.delete.called')
     deleteAllHighlights(req, res)
 }
 
@@ -61,6 +66,7 @@ export async function deleteHighlights(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function deleteHighlightById(req: any, res: any) {
+    logger.info('server.highlights.delete.id.called')
     deleteHighlight(req, res)
 }
 
@@ -70,5 +76,6 @@ export async function deleteHighlightById(req: any, res: any) {
  * @param {object} res http response.
  */
 export async function sendHighlights(req: any, res: any) {
+    logger.info('server.highlights.email.called')
     sendRandomHighlights(req, res)
 }

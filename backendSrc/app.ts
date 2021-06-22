@@ -2,8 +2,9 @@ import * as swaggerDocument from '../swagger.json';
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
-import { router } from './routes/highlightRoutes'
-import { HIGHLIGHTS_BASE_URL, SWAGGER_PATH } from './config/config';
+import { router as highlightRouter } from './routes/highlightRoutes';
+import { router as userRoutes } from './routes/usersRoutes';
+import { HIGHLIGHTS_BASE_URL, SWAGGER_PATH, USERS_BASE_URL } from './config/config';
 import morgan from 'morgan';
 
 let app = express();
@@ -16,7 +17,12 @@ app.use(morgan('combined'))
 /**
  * Highlight routes.
  */
-app.use(HIGHLIGHTS_BASE_URL, router);
+app.use(HIGHLIGHTS_BASE_URL, highlightRouter);
+
+/**
+ * User routes.
+ */
+app.use(USERS_BASE_URL, userRoutes);
 
 /**
  * Swagger route.

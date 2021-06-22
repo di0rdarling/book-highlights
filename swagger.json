@@ -13,8 +13,8 @@
     "basePath": "/",
     "tags": [
         {
-            "name": "Entities",
-            "description": "API for Entities in the system"
+            "name": "Users",
+            "description": "API for Users in the system"
         },
         {
             "name": "Highlights",
@@ -31,121 +31,7 @@
         "application/json"
     ],
     "paths": {
-        "/entity": {
-            "post": {
-                "description": "Creates a new entity",
-                "tags": [
-                    "Entities"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "Entity object that needs to be added to the store",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/EntityCreate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {}
-                }
-            }
-        },
-        "/entities": {
-            "get": {
-                "description": "Gets all entities",
-                "tags": [
-                    "Entities"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "A list of entities",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Entity"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/entity/:_id": {
-            "get": {
-                "description": "Gets the entity object with the given id",
-                "tags": [
-                    "Entities"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "An entity object.",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/Entity"
-                        }
-                    }
-                }
-            }
-        },
-        "/entity/:_id": {
-            "put": {
-                "description": "Edits the entity object with the given id",
-                "tags": [
-                    "Entities"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "Entity object that needs to be edited.",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Entity"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "An entity object.",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/Entity"
-                        }
-                    }
-                }
-            }
-        },
-        "/entity/delete/:_id": {
-            "delete": {
-                "description": "Deletes the entity object with the given id",
-                "tags": [
-                    "Entities"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Entity successfully deleted."
-                    }
-                }
-            }
-        },
-        "/highlight": {
+        "/highlights": {
             "post": {
                 "description": "Creates a new highlight object",
                 "tags": [
@@ -166,11 +52,15 @@
                     }
                 ],
                 "responses": {
-                    "201": {}
+                    "201": {
+                        "description": "A newly created highlight object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/Highlight"
+                        }
+                    }
                 }
-            }
-        },
-        "/highlights": {
+            },
             "get": {
                 "description": "Gets all highlights",
                 "tags": [
@@ -192,7 +82,7 @@
                 }
             }
         },
-        "/highlight/:_id": {
+        "/highlights/:_id": {
             "get": {
                 "description": "Gets the highlight object with the given id",
                 "tags": [
@@ -210,9 +100,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/highlight/:_id": {
+            },
             "put": {
                 "description": "Edits the highlight object with the given id",
                 "tags": [
@@ -241,9 +129,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/highlight/delete/:_id": {
+            },
             "delete": {
                 "description": "Deletes the highlight object with the given id",
                 "tags": [
@@ -258,64 +144,40 @@
                     }
                 }
             }
+        },
+        "/users": {
+            "post": {
+                "description": "Creates a new user object",
+                "tags": [
+                    "Users"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "User object that needs to be added to the store",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "A user object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "EntityCreate": {
-            "type": "object",
-            "required": [
-                "highlight"
-            ],
-            "properties": {
-                "highlight": {
-                    "type": "object",
-                    "items": {
-                        "$ref": "#/definitions/Highlight"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "flag": {
-                    "type": "string"
-                },
-                "note": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Note"
-                    }
-                }
-            }
-        },
-        "Entity": {
-            "type": "object",
-            "required": [
-                "highlight"
-            ],
-            "properties": {
-                "_id": {
-                    "type": "string"
-                },
-                "highlight": {
-                    "type": "object",
-                    "items": {
-                        "$ref": "#/definitions/Highlight"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "flag": {
-                    "type": "string"
-                },
-                "note": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Note"
-                    }
-                }
-            }
-        },
         "HighlightCreate": {
             "type": "object",
             "required": [
@@ -396,6 +258,56 @@
                     "type": "string"
                 },
                 "editedDateTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "UserCreate": {
+            "type": "object",
+            "required": [
+                "firstName",
+                "lastName",
+                "email",
+                "password"
+            ],
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "required": [
+                "_id",
+                "firstName",
+                "lastName",
+                "email",
+                "password"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }

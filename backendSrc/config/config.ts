@@ -5,6 +5,8 @@ const DEFAULT_API_PORT: number = 8080;
 export const API_PORT = process.env.API_PORT || DEFAULT_API_PORT;
 const DEFAULT_HIGHLIGHTS_BASE_URL: string = '/highlights'
 export const HIGHLIGHTS_BASE_URL = process.env.HIGHLIGHTS_BASE_URL || DEFAULT_HIGHLIGHTS_BASE_URL;
+const DEFAULT_USERS_BASE_URL: string = '/users'
+export const USERS_BASE_URL = process.env.USERS_BASE_URL || DEFAULT_USERS_BASE_URL;
 
 //Mongodb
 const DEFAULT_DATABASE: string = 'highlights';
@@ -35,4 +37,9 @@ const DEFAULT_READWISE_CACHE_BOOKS_KEY: string = 'readwiseBooks'
 export const READWISE_CACHE_BOOKS_KEY = process.env.READWISE_CACHE_BOOKS_KEY || DEFAULT_READWISE_CACHE_BOOKS_KEY;
 const DEFAULT_TTL: number = 360000
 export const TTL = process.env.TTL || DEFAULT_TTL;
+
+//Validation
+const DEFAULT_USERS_MIN_PASSWORD_LENGTH: number = 6
+export const USERS_MIN_PASSWORD_LENGTH = process.env.USERS_MIN_PASSWORD_LENGTH || DEFAULT_USERS_MIN_PASSWORD_LENGTH;
+
 

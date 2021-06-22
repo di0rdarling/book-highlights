@@ -1,4 +1,4 @@
-import { Highlight } from "../models/highlight";
+import { Highlight } from "../models/highlights/highlight";
 
 /**
  * Maps the given readwise highlights and books to a full highlight object.

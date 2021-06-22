@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 import Highlight from '../models/schemas/highlightSchema';
 import { StatusCodes } from 'http-status-codes';
-import { cannotFetchHighlights, highlightNotFound, missingHighlightFieldsMessage, errorCreatingHighlight, errorSyncingReadwiseHighlights, cannotMailHighlights } from '../messages/errorMessage';
-import { Highlight as HighlightFull } from '../models/highlight';
+import { cannotFetchHighlights, highlightNotFound, missingFieldsMessage, errorCreatingObject, errorSyncingReadwiseHighlights, cannotMailHighlights } from '../messages/errorMessage';
+import { Highlight as HighlightFull } from '../models/highlights/highlight';
 import { validateHighlightCreate } from '../validators/highlightsValidator';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
 import { highlightDeleted, allHighlightsDeleted } from '../messages/generalMessages';
@@ -16,25 +16,25 @@ import logger from '../logging/logger';
  */
 export async function createHighlight(req: any, resp: any) {
 
-    let highlight = req.body as HighlightFull;
-    let missingFields = validateHighlightCreate(highlight);
+    let highlight:HighlightFull = req.body;
+    let missingFields: string[] = validateHighlightCreate(highlight);
     if (missingFields.length > 0) {
-        resp.status(StatusCodes.BAD_REQUEST).send(missingHighlightFieldsMessage(missingFields))
+        resp.status(StatusCodes.BAD_REQUEST).send(missingFieldsMessage(missingFields))
     } else {
         highlight.highlightedDate = new Date().toISOString();
         highlight.viewed = false;
         try {
 
-            let highlight = await new Highlight(req.body);
-            highlight.save((err: any, highlight: any) => {
+            let highlightSchema = await new Highlight(highlight);
+            highlightSchema.save((err: any, highlight: any) => {
                 if (err) {
-                    resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorCreatingHighlight)
+                    resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorCreatingObject("highlight"))
                 } else {
                     resp.status(StatusCodes.CREATED).send(highlight)
                 }
             });
-        } catch (e) {
-            resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorCreatingHighlight)
+        } catch (err) {
+            resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message)
         }
     }
 }
