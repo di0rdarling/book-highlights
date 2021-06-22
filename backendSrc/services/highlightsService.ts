@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
 import Highlight from '../models/schemas/highlightSchema';
 import { StatusCodes } from 'http-status-codes';
-import { cannotFetchHighlights, highlightNotFound, missingFieldsMessage, errorCreatingObject, errorSyncingReadwiseHighlights, cannotMailHighlights } from '../messages/errorMessage';
+import { cannotFetchHighlights, objectNotFound, missingFieldsMessage, errorCreatingObject, errorSyncingReadwiseHighlights, cannotMailHighlights, cannotDeleteAllObjects } from '../messages/errorMessage';
 import { Highlight as HighlightFull } from '../models/highlights/highlight';
 import { validateHighlightCreate } from '../validators/highlightsValidator';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
-import { highlightDeleted, allHighlightsDeleted } from '../messages/generalMessages';
+import { objectDeleted, allObjectsDeleted } from '../messages/generalMessages';
 import { getHighlights as getReadwiseHighlights, getBooks as getReadwiseBooks } from '../services/readwiseService';
 import logger from '../logging/logger';
 
@@ -48,7 +48,7 @@ export async function getHighlightById(req: any, resp: any) {
 
     await Highlight.findById(req.params._id).then((highlight: any) => {
         if (!highlight) {
-            resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
+            resp.status(StatusCodes.NOT_FOUND).send(objectNotFound('highlight'))
         } else {
             resp.status(StatusCodes.OK).send(highlight)
         }
@@ -66,7 +66,7 @@ export async function editHighlightById(req: any, resp: any) {
 
     await Highlight.findByIdAndUpdate(req.params._id, req.body, { new: true }).then((highlight: any) => {
         if (!highlight) {
-            resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
+            resp.status(StatusCodes.NOT_FOUND).send(objectNotFound('highlight'))
         } else {
             resp.status(StatusCodes.OK).send(highlight)
         }
@@ -100,24 +100,23 @@ export async function getHighlights(req: any, resp: any) {
 export async function deleteHighlight(req: any, resp: any) {
 
     await Highlight.findByIdAndDelete(req.params._id).then((highlight: any) => {
-        resp.status(StatusCodes.OK).send(highlightDeleted)
+        resp.status(StatusCodes.OK).send(objectDeleted('highlight'))
     }).catch((err: Error) => {
-        resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
+        resp.status(StatusCodes.NOT_FOUND).send(objectNotFound('highlight'))
     })
 }
 
 /**
- * Deletes a highlight by id.
+ * Deletes all highlights.
  * @param req http request.
  * @param resp http response.
  */
 export async function deleteAllHighlights(req: any, resp: any) {
 
-
     await Highlight.deleteMany({}).then((highlight: any) => {
-        resp.status(StatusCodes.OK).send(allHighlightsDeleted)
+        resp.status(StatusCodes.OK).send(allObjectsDeleted('highlights'))
     }).catch((err: Error) => {
-        resp.status(StatusCodes.NOT_FOUND).send(highlightNotFound)
+        resp.status(StatusCodes.NOT_FOUND).send(cannotDeleteAllObjects('highlights'))
     })
 }
 

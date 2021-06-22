@@ -2,12 +2,14 @@
 import express from 'express';
 import request from 'supertest';
 import mongoose from 'mongoose';
-import { router } from '../routes/highlightRoutes';
+import { router } from '../routes/usersRoutes';
 import { MONGODB_URI, USERS_BASE_URL, USERS_MIN_PASSWORD_LENGTH } from '../config/config';
 import { User as UserModel } from '../models/users/user';
 import app from '../app';
 import User from '../models/schemas/usersSchema';
 import { invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage } from '../messages/errorMessage';
+import bcyrpt from 'bcrypt';
+import { allObjectsDeleted, objectDeleted } from '../messages/generalMessages';
 
 jest.setTimeout(40000)
 app.use(express.json());
@@ -181,6 +183,90 @@ describe('Tests Users Routes', () => {
         let users = await User.find({});
         expect(users).toHaveLength(0);
     })
+})
+
+it('Deletes the user with the matching Id.', async () => {
+    //Setup
+    let hashedPassword1 = await bcyrpt.hash('Password111', 10)
+    let hashedPassword2 = await bcyrpt.hash('Password222', 10)
+
+    let existingUsers: UserModel[] = [{
+        firstName: 'Test1',
+            lastName: 'User1',
+            email: 'test1.user@gmail.com',
+            password:  hashedPassword1
+    }, {
+        firstName: 'Test2',
+            lastName: 'User2',
+            email: 'test.user2@gmail.com',
+            password:  hashedPassword2
+    }]
+
+    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await User.insertMany(existingUsers).then((users: any) => {
+        users.map((user: any, i: number) => {
+            existingUsers[i]._id = user._id.toString();
+        })
+    }).catch((err: any) => {
+        throw new Error('Unable to insert users to database.')
+    });
+
+    let selectedUser = existingUsers[0]
+
+    //Run test
+    const actualHttpResponse = await request(app)
+        .delete(`${USERS_BASE_URL}/${selectedUser._id}`);
+
+    //Assert
+    expect(actualHttpResponse.status).toBe(200);
+    expect(actualHttpResponse.text).toBe(objectDeleted('user'));
+
+    //Assert database has been correctly updated.
+    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    let users = await User.find({});
+    let mappedUsers = users.map((h: any) => mapUserSchemaToUserModel(h));
+    expect(mappedUsers).toHaveLength(1)
+    expect(mappedUsers[0]).toEqual(existingUsers[1])
+})
+
+it('Deletes all the existing users.', async () => {
+    //Setup
+    let hashedPassword1 = await bcyrpt.hash('Password111', 10)
+    let hashedPassword2 = await bcyrpt.hash('Password222', 10)
+
+    let existingUsers: UserModel[] = [{
+        firstName: 'Test1',
+            lastName: 'User1',
+            email: 'test1.user@gmail.com',
+            password:  hashedPassword1
+    }, {
+        firstName: 'Test2',
+            lastName: 'User2',
+            email: 'test.user2@gmail.com',
+            password:  hashedPassword2
+    }]
+
+    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await User.insertMany(existingUsers).then((users: any) => {
+        users.map((user: any, i: number) => {
+            existingUsers[i]._id = user._id;
+        })
+    }).catch((err: any) => {
+        throw new Error('Unable to insert users to database.')
+    });
+
+    //Run test
+    const actualHttpResponse = await request(app)
+        .delete(USERS_BASE_URL);
+
+    //Assert
+    expect(actualHttpResponse.status).toBe(200);
+    expect(actualHttpResponse.text).toBe(allObjectsDeleted('users'));
+
+    //Assert database has been correctly updated.
+    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    let users = await User.find({});
+    expect(users).toHaveLength(0)
 })
 
 /**

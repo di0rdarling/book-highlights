@@ -80,6 +80,20 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Deletes all highlights",
+                "tags": [
+                    "Highlights"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Highlights successfully deleted."
+                    }
+                }
             }
         },
         "/highlights/:_id": {
@@ -172,6 +186,36 @@
                             "type": "object",
                             "$ref": "#/definitions/User"
                         }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes all users",
+                "tags": [
+                    "Users"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users successfully deleted."
+                    }
+                }
+            }
+        },
+        "/users/:_id": {
+            "delete": {
+                "description": "Deletes the user object with the given id",
+                "tags": [
+                    "Users"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User successfully deleted."
                     }
                 }
             }

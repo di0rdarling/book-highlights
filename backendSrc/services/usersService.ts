@@ -1,10 +1,11 @@
 import { StatusCodes } from "http-status-codes";
-import { errorCreatingObject, invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage } from "../messages/errorMessage";
+import { cannotDeleteAllObjects, errorCreatingObject, invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage, objectNotFound } from "../messages/errorMessage";
 import { User as UserModel } from "../models/users/user";
 import User from '../models/schemas/usersSchema';
 import { validateUserEmail, validateUserMandatoryFields, validateUserPasswordContents, validUserPasswordLength } from "../validators/usersValidator";
 import bcrypt from 'bcrypt';
 import { USERS_MIN_PASSWORD_LENGTH } from "../config/config";
+import { allObjectsDeleted, objectDeleted } from "../messages/generalMessages";
 
 /**
  * Creates a user.
@@ -43,3 +44,33 @@ export async function createUser(req: any, resp: any) {
         }
     }
 }
+
+/**
+ * Deletes the user with the matching ID.
+ * @param req http request.
+ * @param resp https 
+ */
+export async function deleteUser(req: any, resp: any) {
+
+    await User.findByIdAndDelete(req.params._id).then((user: any) => {
+        resp.status(StatusCodes.OK).send(objectDeleted('user'))
+    }).catch((err: Error) => {
+        resp.status(StatusCodes.NOT_FOUND).send(objectNotFound('user'))
+    })
+}
+
+/**
+ * Deletes all users.
+ * @param req http request.
+ * @param resp https 
+ */
+export async function deleteUsers(req: any, resp: any) {
+
+    await User.deleteMany({}).then((user: any) => {
+        resp.status(StatusCodes.OK).send(allObjectsDeleted('users'))
+    }).catch((err: Error) => {
+        resp.status(StatusCodes.NOT_FOUND).send(cannotDeleteAllObjects('users'))
+    })
+}
+
+

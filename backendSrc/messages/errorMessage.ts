@@ -15,7 +15,9 @@ export function missingFieldsMessage(missingFields: string[]): string {
     return errorMessage;
 }
 
-export const highlightNotFound = "A highlight with the given Id does not exist."
+export const objectNotFound = (object: string) =>`The ${object} with the given Id does not exist.`
+
+export const cannotDeleteAllObjects = (objects: string) =>`Unable to delete all ${objects}`
 
 export const cannotFetchHighlights = "Unable to fetch highlights."
 
