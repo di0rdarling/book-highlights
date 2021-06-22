@@ -1,5 +1,5 @@
 import logger from '../logging/logger'
-import { createUser, deleteUser, deleteUsers as deleteAllUsers} from '../services/usersService'
+import { createUser, deleteUser, deleteUsers as deleteAllUsers, getUsers as getAllUsers} from '../services/usersService'
 
 /**
  * Posts a user.
@@ -9,6 +9,16 @@ import { createUser, deleteUser, deleteUsers as deleteAllUsers} from '../service
 export async function postUser(req: any, res: any) {
     logger.info('server.users.post.called')
     createUser(req, res)
+}
+
+/**
+ * Gets all users.
+ * @param {object} req http request.
+ * @param {object} res http response.
+ */
+export async function getUsers(req: any, res: any) {
+    logger.info('server.users.get.called')
+    getAllUsers(req, res)
 }
 
 /**

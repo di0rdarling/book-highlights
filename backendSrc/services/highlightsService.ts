@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import Highlight from '../models/schemas/highlightSchema';
 import { StatusCodes } from 'http-status-codes';
-import { cannotFetchHighlights, objectNotFound, missingFieldsMessage, errorCreatingObject, errorSyncingReadwiseHighlights, cannotMailHighlights, cannotDeleteAllObjects } from '../messages/errorMessage';
+import { cannotFetchObjects, objectNotFound, missingFieldsMessage, errorCreatingObject, errorSyncingReadwiseHighlights, cannotMailHighlights, cannotDeleteAllObjects } from '../messages/errorMessage';
 import { Highlight as HighlightFull } from '../models/highlights/highlight';
 import { validateHighlightCreate } from '../validators/highlightsValidator';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
@@ -53,7 +53,7 @@ export async function getHighlightById(req: any, resp: any) {
             resp.status(StatusCodes.OK).send(highlight)
         }
     }).catch((err: Error) => {
-        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchHighlights)
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchObjects('highlights'))
     })
 }
 
@@ -71,7 +71,7 @@ export async function editHighlightById(req: any, resp: any) {
             resp.status(StatusCodes.OK).send(highlight)
         }
     }).catch((err: Error) => {
-        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchHighlights)
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchObjects('highlights'))
     })
 }
 
@@ -88,7 +88,7 @@ export async function getHighlights(req: any, resp: any) {
     }).catch((err: Error) => {
         logger.error(err.message)
         logger.error('server.highlights.get.all.fail')
-        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchHighlights)
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchObjects('highlights'))
     });
 }
 

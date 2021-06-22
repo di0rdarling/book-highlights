@@ -1,11 +1,12 @@
 import { StatusCodes } from "http-status-codes";
-import { cannotDeleteAllObjects, errorCreatingObject, invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage, objectNotFound } from "../messages/errorMessage";
+import { cannotDeleteAllObjects, cannotFetchObjects, errorCreatingObject, invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage, objectNotFound } from "../messages/errorMessage";
 import { User as UserModel } from "../models/users/user";
 import User from '../models/schemas/usersSchema';
 import { validateUserEmail, validateUserMandatoryFields, validateUserPasswordContents, validUserPasswordLength } from "../validators/usersValidator";
 import bcrypt from 'bcrypt';
 import { USERS_MIN_PASSWORD_LENGTH } from "../config/config";
 import { allObjectsDeleted, objectDeleted } from "../messages/generalMessages";
+import logger from "../logging/logger";
 
 /**
  * Creates a user.
@@ -44,6 +45,24 @@ export async function createUser(req: any, resp: any) {
         }
     }
 }
+
+/**
+ * Gets all users.
+ * @param req http request.
+ * @param resp http response.
+ */
+ export async function getUsers(req: any, resp: any) {
+    // 
+    await User.find({}).then((users: any) => {
+        resp.status(StatusCodes.OK).send(users)
+        logger.info('server.highlights.get.all.success')
+    }).catch((err: Error) => {
+        logger.error(err.message)
+        logger.error('server.highlights.get.all.fail')
+        resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchObjects('users'))
+    });
+}
+
 
 /**
  * Deletes the user with the matching ID.

@@ -269,6 +269,44 @@ it('Deletes all the existing users.', async () => {
     expect(users).toHaveLength(0)
 })
 
+it('Gets all existing users.', async () => {
+    //Setup
+    let hashedPassword1 = await bcyrpt.hash('Password111', 10)
+    let hashedPassword2 = await bcyrpt.hash('Password222', 10)
+
+    let existingUsers: UserModel[] = [{
+        firstName: 'Test1',
+            lastName: 'User1',
+            email: 'test1.user@gmail.com',
+            password:  hashedPassword1
+    }, {
+        firstName: 'Test2',
+            lastName: 'User2',
+            email: 'test.user2@gmail.com',
+            password:  hashedPassword2
+    }]
+
+    await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await User.insertMany(existingUsers).then((users: any) => {
+        users.map((user: any, i: number) => {
+            existingUsers[i]._id = user._id.toString();
+        })
+    }).catch((err: any) => {
+        throw new Error('Unable to insert users to database.')
+    });
+
+    //Run test
+    const actualHttpResponse = await request(app)
+        .get(USERS_BASE_URL);
+
+    //Assert
+    expect(actualHttpResponse.status).toBe(200);
+    expect(actualHttpResponse.body).toHaveLength(2);
+    actualHttpResponse.body.map((users: any, i: number) => {
+        expect(users).toEqual(existingUsers[i])
+    })
+})
+
 /**
  * Maps a given user schema to a user model.
  * @param userSchema user schema.

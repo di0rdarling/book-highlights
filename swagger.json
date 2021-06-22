@@ -189,6 +189,26 @@
                     }
                 }
             },
+            "get": {
+                "description": "Gets all users",
+                "tags": [
+                    "Users"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of users",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes all users",
                 "tags": [
@@ -205,6 +225,24 @@
             }
         },
         "/users/:_id": {
+            "get": {
+                "description": "Gets the users object with the given id",
+                "tags": [
+                    "Users"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A user object.",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes the user object with the given id",
                 "tags": [

@@ -19,7 +19,7 @@ export const objectNotFound = (object: string) =>`The ${object} with the given I
 
 export const cannotDeleteAllObjects = (objects: string) =>`Unable to delete all ${objects}`
 
-export const cannotFetchHighlights = "Unable to fetch highlights."
+export const cannotFetchObjects = (objects: string) => `Unable to fetch ${objects}.`
 
 export const cannotMailHighlights = "Unable to mail highlights."
 
