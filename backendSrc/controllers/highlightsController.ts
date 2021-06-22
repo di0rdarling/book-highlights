@@ -1,5 +1,4 @@
 import { createHighlight, editHighlightById as editHighlight, getHighlightById as getHighlight, getHighlights as getAllHighlights, syncReadwiseHighlights as syncAllReadwiseHighlights, deleteHighlight, deleteAllHighlights, sendHighlights as sendRandomHighlights } from '../services/highlightsService';
-const winston = require('winston');
 import logger from '../logging/logger'
 /**
  * Posts a highlight.

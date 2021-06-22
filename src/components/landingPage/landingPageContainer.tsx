@@ -81,10 +81,6 @@ export default function LandingPageContainer() {
     let [highlights, dispatch] = useHighlightStore();
 
     useEffect(() => {
-        console.log('l', highlights.length)
-    }, [])
-
-    useEffect(() => {
 
         if (allHighlights.length) {
             let ranHighlights = allHighlights.splice(0, 5)

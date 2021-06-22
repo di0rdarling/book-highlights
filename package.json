@@ -12,7 +12,7 @@
         "start:server": "tsc && nodemon --ignore './src/**/**.ts' dist/index.js",
         "build": "react-scripts build",
         "test": "tsc && NODE_ENV=test jest --verbose --runInBand"
-    },
+    }, 
     "browserslist": {
         "production": [
             ">0.2%",

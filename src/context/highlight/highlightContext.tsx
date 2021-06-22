@@ -4,7 +4,7 @@ import { Highlight } from '../../models/highlight';
 import { HighlightStoreAction, highlightStoreReducer } from './highlightStoreReducer';
 
 
-export type HighlightStore = Highlight[];
+export type HighlightStore = Highlight[] | undefined;
 export type HighlightStoreDispatch = (action: HighlightStoreAction) => void;
 
 let HighlightStoreStateContext = createContext<HighlightStore | undefined>(undefined);
