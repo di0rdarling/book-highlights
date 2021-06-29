@@ -15,9 +15,9 @@ export function missingFieldsMessage(missingFields: string[]): string {
     return errorMessage;
 }
 
-export const objectNotFound = (object: string) =>`The ${object} with the given Id does not exist.`
+export const objectNotFound = (object: string) => `The ${object} with the given Id does not exist.`
 
-export const cannotDeleteAllObjects = (objects: string) =>`Unable to delete all ${objects}`
+export const cannotDeleteAllObjects = (objects: string) => `Unable to delete all ${objects}`
 
 export const cannotFetchObjects = (objects: string) => `Unable to fetch ${objects}.`
 
@@ -34,3 +34,5 @@ export const invalidUserPasswordLength = (length: number) => `User password must
 export const invalidUserPasswordContent = `User password must have at least one uppercase letter and one number.`
 
 export const invalidUserEmail = `User email must be a valid email address.`
+
+export const userAlreadyExists = "A user with the given email is already registered."

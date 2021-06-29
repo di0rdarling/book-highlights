@@ -7,7 +7,7 @@ import { MONGODB_URI, USERS_BASE_URL, USERS_MIN_PASSWORD_LENGTH } from '../confi
 import { User as UserModel } from '../models/users/user';
 import app from '../app';
 import User from '../models/schemas/usersSchema';
-import { invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage } from '../messages/errorMessage';
+import { invalidUserEmail, invalidUserPasswordContent, invalidUserPasswordLength, missingFieldsMessage, userAlreadyExists } from '../messages/errorMessage';
 import bcyrpt from 'bcrypt';
 import { allObjectsDeleted, objectDeleted } from '../messages/generalMessages';
 
@@ -15,6 +15,8 @@ jest.setTimeout(40000)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(router);
+
+const USERS_REGISTER_URL = `${USERS_BASE_URL}/register`
 
 describe('Tests Users Routes', () => {
     beforeEach((done) => {
@@ -27,7 +29,7 @@ describe('Tests Users Routes', () => {
             });
     })
 
-    it('Creates a new User object', async () => {
+    it('Registers a new User', async () => {
         //Setup
         let user: UserModel = {
             firstName: 'Test',
@@ -46,9 +48,8 @@ describe('Tests Users Routes', () => {
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post(USERS_BASE_URL)
+            .post(USERS_REGISTER_URL)
             .send(user);
-
 
         //Assert
         expect(actualHttpResponse.status).toBe(201)
@@ -68,6 +69,45 @@ describe('Tests Users Routes', () => {
         expect(actualUserModel).toEqual(expectedUserModel);
     })
 
+    it('Returns 409 Conflict when a user is already registered with the given email.', async () => {
+        //Setup
+        let hashedPassword1 = await bcyrpt.hash('Password111', 10)
+        let hashedPassword2 = await bcyrpt.hash('Password222', 10)
+
+        let existingUsers: UserModel[] = [{
+            firstName: 'Test1',
+            lastName: 'User1',
+            email: 'test1.user@gmail.com',
+            password: hashedPassword1
+        }, {
+            firstName: 'Test2',
+            lastName: 'User2',
+            email: 'test.user2@gmail.com',
+            password: hashedPassword2
+        }]
+
+        await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        await User.insertMany(existingUsers).then((users: any) => {
+            users.map((user: any, i: number) => {
+                existingUsers[i]._id = user._id.toString();
+            })
+        }).catch((err: any) => {
+            throw new Error('Unable to insert users to database.')
+        });
+
+        let selectedExistingUser = existingUsers[0];
+        selectedExistingUser.password = 'Password111'
+
+        //Run test
+        const actualHttpResponse = await request(app)
+            .post(USERS_REGISTER_URL)
+            .send(selectedExistingUser);
+
+        //Assert
+        expect(actualHttpResponse.status).toBe(409)
+        expect(actualHttpResponse.body).toEqual(userAlreadyExists)
+    })
+
     it('Returns 400 Bad Request when the mandatory fields are not provided when creating a user', async () => {
         //Setup
         let missingUserFields = [
@@ -79,14 +119,14 @@ describe('Tests Users Routes', () => {
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post(USERS_BASE_URL)
+            .post(USERS_REGISTER_URL)
             .send({});
 
         //Assert
         expect(actualHttpResponse.status).toBe(400)
         expect(actualHttpResponse.text).toEqual(missingFieldsMessage(missingUserFields))
     })
-   
+
     it(`Returns a bad request 400 when a password of less than ${USERS_MIN_PASSWORD_LENGTH} characters is given`, async () => {
         //Setup
         let user: UserModel = {
@@ -98,7 +138,7 @@ describe('Tests Users Routes', () => {
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post(USERS_BASE_URL)
+            .post(USERS_REGISTER_URL)
             .send(user);
 
         //Assert
@@ -111,7 +151,7 @@ describe('Tests Users Routes', () => {
         expect(users).toHaveLength(0);
 
     })
-    
+
     it(`Returns a bad request 400 when a password does not contain one uppercase letter.`, async () => {
         //Setup
         let user: UserModel = {
@@ -123,7 +163,7 @@ describe('Tests Users Routes', () => {
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post(USERS_BASE_URL)
+            .post(USERS_REGISTER_URL)
             .send(user);
 
         //Assert
@@ -135,7 +175,7 @@ describe('Tests Users Routes', () => {
         let users = await User.find({});
         expect(users).toHaveLength(0);
     })
-    
+
     it(`Returns a bad request 400 when a password does not contain one number.`, async () => {
         //Setup
         let user: UserModel = {
@@ -147,7 +187,7 @@ describe('Tests Users Routes', () => {
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post(USERS_BASE_URL)
+            .post(USERS_REGISTER_URL)
             .send(user);
 
         //Assert
@@ -159,7 +199,7 @@ describe('Tests Users Routes', () => {
         let users = await User.find({});
         expect(users).toHaveLength(0);
     })
-    
+
     it(`Returns a bad request 400 when an invalid email address is given.`, async () => {
         //Setup
         let user: UserModel = {
@@ -171,7 +211,7 @@ describe('Tests Users Routes', () => {
 
         //Run test
         const actualHttpResponse = await request(app)
-            .post(USERS_BASE_URL)
+            .post(USERS_REGISTER_URL)
             .send(user);
 
         //Assert
@@ -192,14 +232,14 @@ it('Deletes the user with the matching Id.', async () => {
 
     let existingUsers: UserModel[] = [{
         firstName: 'Test1',
-            lastName: 'User1',
-            email: 'test1.user@gmail.com',
-            password:  hashedPassword1
+        lastName: 'User1',
+        email: 'test1.user@gmail.com',
+        password: hashedPassword1
     }, {
         firstName: 'Test2',
-            lastName: 'User2',
-            email: 'test.user2@gmail.com',
-            password:  hashedPassword2
+        lastName: 'User2',
+        email: 'test.user2@gmail.com',
+        password: hashedPassword2
     }]
 
     await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -219,7 +259,7 @@ it('Deletes the user with the matching Id.', async () => {
 
     //Assert
     expect(actualHttpResponse.status).toBe(200);
-    expect(actualHttpResponse.text).toBe(objectDeleted('user'));
+    expect(actualHttpResponse.body).toBe(objectDeleted('user'));
 
     //Assert database has been correctly updated.
     await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -236,14 +276,14 @@ it('Deletes all the existing users.', async () => {
 
     let existingUsers: UserModel[] = [{
         firstName: 'Test1',
-            lastName: 'User1',
-            email: 'test1.user@gmail.com',
-            password:  hashedPassword1
+        lastName: 'User1',
+        email: 'test1.user@gmail.com',
+        password: hashedPassword1
     }, {
         firstName: 'Test2',
-            lastName: 'User2',
-            email: 'test.user2@gmail.com',
-            password:  hashedPassword2
+        lastName: 'User2',
+        email: 'test.user2@gmail.com',
+        password: hashedPassword2
     }]
 
     await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -261,7 +301,7 @@ it('Deletes all the existing users.', async () => {
 
     //Assert
     expect(actualHttpResponse.status).toBe(200);
-    expect(actualHttpResponse.text).toBe(allObjectsDeleted('users'));
+    expect(actualHttpResponse.body).toBe(allObjectsDeleted('users'));
 
     //Assert database has been correctly updated.
     await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -276,14 +316,14 @@ it('Gets all existing users.', async () => {
 
     let existingUsers: UserModel[] = [{
         firstName: 'Test1',
-            lastName: 'User1',
-            email: 'test1.user@gmail.com',
-            password:  hashedPassword1
+        lastName: 'User1',
+        email: 'test1.user@gmail.com',
+        password: hashedPassword1
     }, {
         firstName: 'Test2',
-            lastName: 'User2',
-            email: 'test.user2@gmail.com',
-            password:  hashedPassword2
+        lastName: 'User2',
+        email: 'test.user2@gmail.com',
+        password: hashedPassword2
     }]
 
     await mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -312,7 +352,7 @@ it('Gets all existing users.', async () => {
  * @param userSchema user schema.
  * @returns a mapped user model.
  */
-function mapUserSchemaToUserModel(userSchema: any){
+function mapUserSchemaToUserModel(userSchema: any) {
     let user: UserModel = {
         _id: userSchema._id.toString(),
         firstName: userSchema.firstName,
@@ -324,4 +364,3 @@ function mapUserSchemaToUserModel(userSchema: any){
     return user;
 }
 
-    

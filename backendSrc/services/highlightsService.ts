@@ -23,18 +23,24 @@ export async function createHighlight(req: any, resp: any) {
     } else {
         highlight.highlightedDate = new Date().toISOString();
         highlight.viewed = false;
-        try {
 
+        try {
             let highlightSchema = await new Highlight(highlight);
             highlightSchema.save((err: any, highlight: any) => {
                 if (err) {
-                    resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorCreatingObject("highlight"))
+                    resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                        error: errorCreatingObject("highlight"),
+                        message: err.message
+                    })
                 } else {
                     resp.status(StatusCodes.CREATED).send(highlight)
                 }
             });
         } catch (err) {
-            resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message)
+            resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
+                error: errorCreatingObject("highlight"),
+                message: err.message
+            })
         }
     }
 }
@@ -44,6 +50,7 @@ export async function createHighlight(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function getHighlightById(req: any, resp: any) {
 
     await Highlight.findById(req.params._id).then((highlight: any) => {
@@ -62,6 +69,7 @@ export async function getHighlightById(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function editHighlightById(req: any, resp: any) {
 
     await Highlight.findByIdAndUpdate(req.params._id, req.body, { new: true }).then((highlight: any) => {
@@ -80,6 +88,7 @@ export async function editHighlightById(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function getHighlights(req: any, resp: any) {
     // 
     await Highlight.find({}).then((highlights: any) => {
@@ -97,6 +106,7 @@ export async function getHighlights(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function deleteHighlight(req: any, resp: any) {
 
     await Highlight.findByIdAndDelete(req.params._id).then((highlight: any) => {
@@ -111,6 +121,7 @@ export async function deleteHighlight(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function deleteAllHighlights(req: any, resp: any) {
 
     await Highlight.deleteMany({}).then((highlight: any) => {
@@ -125,6 +136,7 @@ export async function deleteAllHighlights(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function syncReadwiseHighlights(req: any, resp: any) {
 
     try {
@@ -180,6 +192,7 @@ export async function syncReadwiseHighlights(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
+//TODO: UPDATE ERROR RESPONSE.
 export async function sendHighlights(req: any, resp: any) {
 
 

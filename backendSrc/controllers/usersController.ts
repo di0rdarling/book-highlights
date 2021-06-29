@@ -1,14 +1,15 @@
 import logger from '../logging/logger'
-import { createUser, deleteUser, deleteUsers as deleteAllUsers, getUsers as getAllUsers} from '../services/usersService'
+import { registerUser as regsiterNewUser, deleteUser, deleteUsers as deleteAllUsers, getUsers as getAllUsers} from '../services/usersService'
+import express from 'express';
 
 /**
  * Posts a user.
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function postUser(req: any, res: any) {
+export async function registerUser(req: express.Request, res: express.Response) {
     logger.info('server.users.post.called')
-    createUser(req, res)
+    regsiterNewUser(req, res)
 }
 
 /**
@@ -16,7 +17,7 @@ export async function postUser(req: any, res: any) {
  * @param {object} req http request.
  * @param {object} res http response.
  */
-export async function getUsers(req: any, res: any) {
+export async function getUsers(req: express.Request, res: express.Response) {
     logger.info('server.users.get.called')
     getAllUsers(req, res)
 }
@@ -26,7 +27,7 @@ export async function getUsers(req: any, res: any) {
  * @param req http request.
  * @param resp http response.
  */
-export async function deleteUserById(req: any, res: any) {
+export async function deleteUserById(req: express.Request, res: express.Response) {
      logger.info('server.users.delete.id.called')
     deleteUser(req, res)
 }
@@ -36,7 +37,7 @@ export async function deleteUserById(req: any, res: any) {
  * @param req http request.
  * @param resp http response.
  */
-export async function deleteUsers(req: any, res: any) {
+export async function deleteUsers(req: express.Request, res: express.Response) {
      logger.info('server.users.delete.called')
     deleteAllUsers(req, res)
 }

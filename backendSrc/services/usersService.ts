@@ -7,43 +7,76 @@ import bcrypt from 'bcrypt';
 import { USERS_MIN_PASSWORD_LENGTH } from "../config/config";
 import { allObjectsDeleted, objectDeleted } from "../messages/generalMessages";
 import logger from "../logging/logger";
+import passport from "../passport/passportSetup";
 
 /**
  * Creates a user.
  * @param req http request.
  * @param resp https 
  */
-export async function createUser(req: any, resp: any) {
+export async function registerUser(req: any, resp: any) {
 
     let user: UserModel = req.body;
     let missingFields: string[] = validateUserMandatoryFields(user);
-    
-    if(missingFields.length > 0){
+
+    if (missingFields.length > 0) {
+        logger.error('server.users.post.fields.validation.failed')
         resp.status(StatusCodes.BAD_REQUEST).send(missingFieldsMessage(missingFields));
-    }else if(!validUserPasswordLength(user.password, USERS_MIN_PASSWORD_LENGTH as number)){
+    } else if (!validUserPasswordLength(user.password, USERS_MIN_PASSWORD_LENGTH as number)) {
+        logger.error('server.users.post.password.validation.failed')
         resp.status(StatusCodes.BAD_REQUEST).send(invalidUserPasswordLength(USERS_MIN_PASSWORD_LENGTH as number));
-    }else if(!validateUserPasswordContents(user.password)){
+    } else if (!validateUserPasswordContents(user.password)) {
+        logger.error('server.users.post.password.validation.failed')
         resp.status(StatusCodes.BAD_REQUEST).send(invalidUserPasswordContent);
-    }else if(!validateUserEmail(user.email)){
+    } else if (!validateUserEmail(user.email)) {
+        logger.error('server.users.post.email.validation.failed')
         resp.status(StatusCodes.BAD_REQUEST).send(invalidUserEmail);
-    } else{
+    } else {
 
         let hashedPassword = await bcrypt.hash(user.password, 10);
         user.password = hashedPassword;
-        try{
-            let usersSchema = await new User(user);
-            usersSchema.save((err: any, user: any) => {
-                if(err){
-                    resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(errorCreatingObject("user"))
-                }else{
-                    resp.status(StatusCodes.CREATED).send(user)
-                }
-            })
+        try {
+            User.register(new User({
+                email: user.email,
+                password: user.password,
+                firstName: user.firstName,
+                lastName: user.lastName
+            }),
+                req.body.password, (err, user) => {
+                    if (err) {
+                        resp.setHeader('Content-Type', 'application/json');
+                        if (err.name === 'UserExistsError') {
+                            resp.statusCode = 409;
+                            resp.json(err.message);
+                        } else {
+                            resp.statusCode = 500;
+                            resp.json({
+                                err: err
+                            });
+                        }
+                        logger.error('server.users.post.failed')
+                    } else {
+                        passport.authenticate('local')(req, resp, () => {
+                            User.findOne({
+                                email: req.body.email
+                            }, (err: any, user: any) => {
+                                resp.statusCode = 201;
+                                resp.setHeader('Content-Type', 'application/json');
+                                resp.json(user);
+                            });
+                        })
+                        logger.error('server.users.post.success')
+                    }
+                })
 
-        }catch(err){
+        } catch (err) {
+            logger.error('server.users.post.failed')
             resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message)
         }
     }
+
+
+
 }
 
 /**
@@ -51,14 +84,15 @@ export async function createUser(req: any, resp: any) {
  * @param req http request.
  * @param resp http response.
  */
- export async function getUsers(req: any, resp: any) {
+export async function getUsers(req: any, resp: any) {
     // 
     await User.find({}).then((users: any) => {
+        resp.setHeader('Content-Type', 'application/json');
         resp.status(StatusCodes.OK).send(users)
-        logger.info('server.highlights.get.all.success')
+        logger.info('server.users.get.all.success')
     }).catch((err: Error) => {
         logger.error(err.message)
-        logger.error('server.highlights.get.all.fail')
+        logger.error('server.users.get.all.failed')
         resp.status(StatusCodes.INTERNAL_SERVER_ERROR).send(cannotFetchObjects('users'))
     });
 }
@@ -72,9 +106,10 @@ export async function createUser(req: any, resp: any) {
 export async function deleteUser(req: any, resp: any) {
 
     await User.findByIdAndDelete(req.params._id).then((user: any) => {
-        resp.status(StatusCodes.OK).send(objectDeleted('user'))
+        resp.setHeader('Content-Type', 'application/json');
+        resp.status(StatusCodes.OK).json(objectDeleted('user'))
     }).catch((err: Error) => {
-        resp.status(StatusCodes.NOT_FOUND).send(objectNotFound('user'))
+        resp.status(StatusCodes.NOT_FOUND).json(objectNotFound('user'))
     })
 }
 
@@ -85,10 +120,12 @@ export async function deleteUser(req: any, resp: any) {
  */
 export async function deleteUsers(req: any, resp: any) {
 
+
     await User.deleteMany({}).then((user: any) => {
-        resp.status(StatusCodes.OK).send(allObjectsDeleted('users'))
+        resp.setHeader('Content-Type', 'application/json');
+        resp.status(StatusCodes.OK).json(allObjectsDeleted('users'))
     }).catch((err: Error) => {
-        resp.status(StatusCodes.NOT_FOUND).send(cannotDeleteAllObjects('users'))
+        resp.status(StatusCodes.NOT_FOUND).json(cannotDeleteAllObjects('users'))
     })
 }
 

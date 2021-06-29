@@ -1,6 +1,8 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model, PassportLocalSchema } from 'mongoose';
 import { User as UserModel } from '../users/user';
 import Connection from '../../database/connection';
+import passportLocalMongoose from 'passport-local-mongoose';
+import { userAlreadyExists } from '../../messages/errorMessage';
 
 new Connection();
 
@@ -40,4 +42,12 @@ export const UserSchema: Schema = new Schema({
     versionKey: false
 });
 
-export default model<User>("User", UserSchema)
+UserSchema.plugin(passportLocalMongoose, {
+    usernameField: 'email',
+    errorMessages: {
+        UserExistsError: userAlreadyExists
+    }
+});
+
+
+export default model<User>("User", UserSchema as PassportLocalSchema)
