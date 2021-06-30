@@ -7,6 +7,8 @@ const DEFAULT_HIGHLIGHTS_BASE_URL: string = '/highlights'
 export const HIGHLIGHTS_BASE_URL = process.env.HIGHLIGHTS_BASE_URL || DEFAULT_HIGHLIGHTS_BASE_URL;
 const DEFAULT_USERS_BASE_URL: string = '/users'
 export const USERS_BASE_URL = process.env.USERS_BASE_URL || DEFAULT_USERS_BASE_URL;
+const DEFAULT_AUTH_BASE_URL: string = '/auth'
+export const AUTH_BASE_URL = process.env.USERS_AUTH_BASE_URL || DEFAULT_AUTH_BASE_URL;
 
 //Mongodb
 const DEFAULT_DATABASE: string = 'highlights';

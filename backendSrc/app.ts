@@ -8,7 +8,8 @@ import passport from 'passport';
 import User from './models/schemas/usersSchema';
 import { router as highlightRouter } from './routes/highlightRoutes';
 import { router as userRoutes } from './routes/usersRoutes';
-import { HIGHLIGHTS_BASE_URL, MONGODB_URI, SWAGGER_PATH, USERS_BASE_URL } from './config/config';
+import { router as authorisationRoutes } from './routes/authorisationRoutes';
+import { AUTH_BASE_URL, HIGHLIGHTS_BASE_URL, MONGODB_URI, SWAGGER_PATH, USERS_BASE_URL } from './config/config';
 import MongoStore from 'connect-mongo';
 
 let app = express();
@@ -30,19 +31,19 @@ app.use(passport.session());
 passport.use(User.createStrategy());
 
 /**
+ * Authorisation routes.
+ */
+app.use(AUTH_BASE_URL, authorisationRoutes);
+
+/**
  * Highlight routes.
  */
-app.use(HIGHLIGHTS_BASE_URL, highlightRouter);
+app.use(HIGHLIGHTS_BASE_URL, passport.authenticate('jwt', { session: false }), highlightRouter);
 
 /**
  * User routes.
  */
-app.use(USERS_BASE_URL, userRoutes);
-
-/**
- * User routes.
- */
-app.use('/auth', userRoutes);
+app.use(USERS_BASE_URL, passport.authenticate('jwt', { session: false }), userRoutes);
 
 /**
  * Swagger route.

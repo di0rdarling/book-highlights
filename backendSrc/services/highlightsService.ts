@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import Highlight from '../models/schemas/highlightSchema';
+import logger from '../logging/logger';
 import { StatusCodes } from 'http-status-codes';
 import { cannotFetchObjects, objectNotFound, missingFieldsMessage, errorCreatingObject, errorSyncingReadwiseHighlights, cannotMailHighlights, cannotDeleteAllObjects } from '../messages/errorMessage';
 import { Highlight as HighlightFull } from '../models/highlights/highlight';
@@ -7,7 +8,6 @@ import { validateHighlightCreate } from '../validators/highlightsValidator';
 import { mapReadwiseHighlightsToHighlights } from '../mappers/readwiseMapper';
 import { objectDeleted, allObjectsDeleted } from '../messages/generalMessages';
 import { getHighlights as getReadwiseHighlights, getBooks as getReadwiseBooks } from '../services/readwiseService';
-import logger from '../logging/logger';
 
 /**
  * Creates a highlight.
@@ -16,7 +16,7 @@ import logger from '../logging/logger';
  */
 export async function createHighlight(req: any, resp: any) {
 
-    let highlight:HighlightFull = req.body;
+    let highlight: HighlightFull = req.body;
     let missingFields: string[] = validateHighlightCreate(highlight);
     if (missingFields.length > 0) {
         resp.status(StatusCodes.BAD_REQUEST).send(missingFieldsMessage(missingFields))

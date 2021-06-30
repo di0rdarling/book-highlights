@@ -3,7 +3,7 @@ import logger from './backendSrc/logging/logger';
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    logger.info('Listening on port ' + PORT)
+    logger.info(`server.started.listening.port.${PORT}`)
 });
 
 export { }

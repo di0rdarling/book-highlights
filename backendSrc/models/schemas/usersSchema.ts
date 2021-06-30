@@ -1,8 +1,8 @@
 import { Schema, Document, model, PassportLocalSchema } from 'mongoose';
 import { User as UserModel } from '../users/user';
+import { userAlreadyExists } from '../../messages/errorMessage';
 import Connection from '../../database/connection';
 import passportLocalMongoose from 'passport-local-mongoose';
-import { userAlreadyExists } from '../../messages/errorMessage';
 
 new Connection();
 
