@@ -58,7 +58,7 @@ passport.use('login', new LocalStrategy({
 passport.use('jwt',
   new Strategy(
     {
-      secretOrKey: 'TOP_SECRET', //TODO: Linked to token in usersService.
+      secretOrKey: 'TOP_SECRET', //TODO: Move to config? Linked to token in usersService.
       jwtFromRequest: ExtractJwt.fromUrlQueryParameter('secret_token')
     },
     async (token: any, done: any) => {
