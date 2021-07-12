@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles, TextField, Typography, IconButton, InputAdornment } from '@material-ui/core';
-import brainSpaceIcon from '../../icons/brainSpaceIcon.svg';
+import brainSpaceIcon from '../assets/icons/brainSpaceIcon.svg';
 import { AccountCircle, Search } from '@material-ui/icons';
-import { palette } from '../../palette';
+import { palette } from '../palette';
 
 const useStyles = makeStyles(theme => ({
     root: {

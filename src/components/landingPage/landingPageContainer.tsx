@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Divider, makeStyles, Typography } from '@material-ui/core';
 import { palette } from '../../palette';
-import { getHighlights, syncHighlights } from '../../integration/highlights';
 import { Highlight } from '../../models/highlight';
-import Header from './header';
 import PaneLeft from './paneLeft';
 import PaneRight from './paneRight';
-import { useHighlightStore, useHighlightStoreState } from '../../context/highlight/highlightContext';
+import { useHighlightStore } from '../../context/highlight/highlightContext';
+import Shell from '../shell';
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        padding: theme.spacing(3),
-        height: '100%'
-    },
     body: {
         height: '100%'
     },
@@ -95,8 +90,7 @@ export default function LandingPageContainer() {
     }
 
     return (
-        <div className={classes.root}>
-            <Header />
+        <Shell>
             <div className={classes.body}>
                 <Typography className={classes.welcomeText}>Welcome, Abi!</Typography>
                 <div className={classes.panes}>
@@ -105,6 +99,6 @@ export default function LandingPageContainer() {
                     <PaneRight highlights={allHighlights.filter(highlight => highlight.favourited)} />
                 </div>
             </div>
-        </div>
+        </Shell>
     )
 }

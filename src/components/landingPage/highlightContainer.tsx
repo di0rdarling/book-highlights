@@ -3,7 +3,7 @@ import { Divider, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { palette } from '../../palette';
 import { Highlight } from '../../models/highlight';
 import { StarBorder, Close } from '@material-ui/icons';
-import noteIcon from '../../icons/noteIcon.svg';
+import noteIcon from '../../assets/icons/noteIcon.svg';
 import { editHighlight } from '../../integration/highlights';
 
 const useStyles = makeStyles(theme => ({

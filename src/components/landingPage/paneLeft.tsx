@@ -3,8 +3,8 @@ import { Button, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { palette } from '../../palette';
 import { Highlight } from '../../models/highlight';
 import HighlightContainer from './highlightContainer';
-import syncIcon from '../../icons/syncIcon.svg';
-import doneIcon from '../../icons/doneIcon.svg';
+import syncIcon from '../../assets/icons/syncIcon.svg';
+import doneIcon from '../../assets/icons/doneIcon.svg';
 
 const useStyles = makeStyles(theme => ({
     paneLeft: {
@@ -74,13 +74,13 @@ export default function PaneLeft(props: PaneLeftProps) {
                         </div>
                     </>
                 ) : (
-                        <div className={classes.noHighlightsDisplay}>
-                            <Typography className={classes.noHighlightsFoundText}>No highlights found</Typography>
-                            <Typography >Sync with Kindle highlights?</Typography>
-                            <Button onClick={() => props.syncHighlights()}>Yes</Button>
-                            <Button>No</Button>
-                        </div>
-                    )}
+                    <div className={classes.noHighlightsDisplay}>
+                        <Typography className={classes.noHighlightsFoundText}>No highlights found</Typography>
+                        <Typography >Sync with Kindle highlights?</Typography>
+                        <Button onClick={() => props.syncHighlights()}>Yes</Button>
+                        <Button>No</Button>
+                    </div>
+                )}
             </div>
         </div>
     )
